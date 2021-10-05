@@ -26,3 +26,4 @@
 defined('MOODLE_INTERNAL') || die();
 
 $string['pluginname'] = 'User upsert';
+$string['privacy:metadata'] = 'The User upsert plugin does not store any personal data.';
