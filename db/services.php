@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <https://www.gnu.org/licenses/>.
 
 /**
- * Plugin version and other meta-data are defined here.
+ * Describes the plugins web services.
  *
  * @package     tool_userupsert
  * @copyright   2021 Catalyst IT
@@ -24,8 +24,12 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->component = 'tool_userupsert';
-$plugin->version = 2021100501;
-$plugin->release = '2021100501';
-$plugin->requires = 2020061500;
-$plugin->maturity = MATURITY_STABLE;
+$functions = [
+    'tool_userupsert_upsert_users' => [
+        'classname'       => 'tool_userupsert\external\upsert',
+        'methodname'      => 'upsert_users',
+        'description'     => 'Updates or creates a user in Moodle',
+        'type'            => 'write',
+        'capabilities'    => 'tool/userupsert:upsert',
+    ]
+];

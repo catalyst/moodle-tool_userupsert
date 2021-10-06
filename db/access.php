@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <https://www.gnu.org/licenses/>.
 
 /**
- * Plugin version and other meta-data are defined here.
+ * Define capabilities.
  *
  * @package     tool_userupsert
  * @copyright   2021 Catalyst IT
@@ -24,8 +24,10 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->component = 'tool_userupsert';
-$plugin->version = 2021100501;
-$plugin->release = '2021100501';
-$plugin->requires = 2020061500;
-$plugin->maturity = MATURITY_STABLE;
+$capabilities = [
+    'tool/userupsert:upsert' => [
+        'captype' => 'write',
+        'contextlevel' => CONTEXT_SYSTEM,
+        'archetypes' => []
+    ],
+];
