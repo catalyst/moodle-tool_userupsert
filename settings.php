@@ -26,8 +26,14 @@
 defined('MOODLE_INTERNAL') || die();
 
 if ($hassiteconfig) {
-    // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedIf
-    if ($ADMIN->fulltree) {
-        // TODO: Define the plugin settings page - {@link https://docs.moodle.org/dev/Admin_settings}.
-    }
+
+    $settings = new admin_settingpage('tool_userupsert', get_string('pluginname', 'tool_userupsert'));
+    $ADMIN->add('tools', $settings);
+
+    $settings->add(new admin_setting_configtextarea(
+            'tool_userupsert/fields',
+            get_string('fields', 'tool_userupsert'),
+            get_string('fields_desc', 'tool_userupsert'),
+            '')
+    );
 }
