@@ -23,6 +23,7 @@
  */
 
 namespace tool_userupsert\privacy;
+
 use core_privacy\local\metadata\null_provider;
 
 defined('MOODLE_INTERNAL') || die();
