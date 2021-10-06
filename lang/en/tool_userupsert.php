@@ -36,3 +36,4 @@ For example:
 userName | Username field.
 authType | Auth type of the user.
 </pre>';
+$string['userupsert:upsert'] = 'Upsert users';
