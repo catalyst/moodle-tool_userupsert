@@ -1,3 +1,5 @@
+![Build Status](https://github.com/catalyst/moodle-tool_userupsert/actions/workflows/ci.yml/badge.svg?branch=MOODLE_39_STABLE)
+
 # Upsert users #
 
 TODO Describe the plugin shortly here.
