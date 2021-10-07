@@ -23,17 +23,48 @@
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+use tool_userupsert\config;
+
 defined('MOODLE_INTERNAL') || die();
 
 if ($hassiteconfig) {
 
+    $config = new config();
+
     $settings = new admin_settingpage('tool_userupsert', get_string('pluginname', 'tool_userupsert'));
     $ADMIN->add('tools', $settings);
 
-    $settings->add(new admin_setting_configtextarea(
-            'tool_userupsert/fields',
-            get_string('fields', 'tool_userupsert'),
-            get_string('fields_desc', 'tool_userupsert'),
-            '')
+    if (!$config->is_ready()) {
+        $error = $OUTPUT->notification(get_string('notconfigured', 'tool_userupsert'));
+        $settings->add(new admin_setting_heading('tool_userupsert/generalsettings', '', $error));
+    }
+
+    $settings->add(new admin_setting_heading(
+        'tool_userupsert/wsfields',
+        get_string('webservicefields', 'tool_userupsert'),
+        '')
     );
+
+    $settings->add(new admin_setting_configtextarea(
+        'tool_userupsert/webservicefields',
+        get_string('webservicefields', 'tool_userupsert'),
+        get_string('webservicefields_desc', 'tool_userupsert'),
+        '')
+    );
+
+    $settings->add(new admin_setting_heading(
+        'tool_userupsert/mapping',
+        get_string('usermatchfield', 'tool_userupsert'),
+        '')
+    );
+
+    $settings->add(new admin_setting_configselect(
+        'tool_userupsert/usermatchfield',
+        get_string('usermatchfield', 'tool_userupsert'),
+        get_string('usermatchfield_desc', 'tool_userupsert'),
+        'username',
+        $config->get_supported_match_fields())
+    );
+
+    $config->display_data_mapping_settings($settings);
 }

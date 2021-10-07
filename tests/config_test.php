@@ -39,18 +39,58 @@ defined('MOODLE_INTERNAL') || die();
 class settings_test extends advanced_testcase {
 
     /**
-     * Test get fields when empty config.
+     * A helper function to create a custom profile field.
+     *
+     * @param string $shortname Short name of the field.
+     * @param string $datatype Type of the field, e.g. text, checkbox, datetime, menu and etc.
+     * @param bool $unique Should the field to be unique?
+     *
+     * @return \stdClass
      */
-    public function test_get_fields_empty_config() {
-        $config = new config();
-        $this->assertEmpty($config->get_fields());
+    protected function add_user_profile_field(string $shortname, string $datatype, bool $unique = false) : \stdClass {
+        global $DB;
+
+        // Create a new profile field.
+        $data = new \stdClass();
+        $data->shortname = $shortname;
+        $data->datatype = $datatype;
+        $data->name = 'Test ' . $shortname;
+        $data->description = 'This is a test field';
+        $data->required = false;
+        $data->locked = false;
+        $data->forceunique = $unique;
+        $data->signup = false;
+        $data->visible = '0';
+        $data->categoryid = '0';
+
+        $DB->insert_record('user_info_field', $data);
+
+        return $data;
     }
 
     /**
-     * Test get fields.
+     * Test class constants.
      */
-    public function test_get_fields() {
+    public function test_constants() {
+        $this->assertSame(['username', 'idnumber', 'email'], config::MATCH_FIELDS_FROM_USER_TABLE);
+        $this->assertSame(['text'], config::SUPPORTED_TYPES_OF_PROFILE_FIELDS);
+        $this->assertSame('profile_field_', config::PROFILE_FIELD_PREFIX);
+    }
+
+    /**
+     * Test get webservicefields when empty config.
+     */
+    public function test_get_webservicefields_empty_config() {
+        $config = new config();
+        $this->assertEmpty($config->get_web_service_fields());
+    }
+
+    /**
+     * Test get webservicefields.
+     */
+    public function test_get_webservicefields() {
         $this->resetAfterTest();
+
         $testsetting = <<<SETTING
 field1| Description 1
 field2 |Description 2
@@ -60,7 +100,7 @@ field 4 | Description 4
 field6 |
 field7 | Description 7 | field8 | Description 8
 SETTING;
-        set_config('fields', $testsetting, 'tool_userupsert');
+        set_config('webservicefields', $testsetting, 'tool_userupsert');
 
         $config = new config();
         $expected = [
@@ -69,7 +109,161 @@ SETTING;
             'field3' => 'Description 3',
         ];
 
-        $this->assertSame($expected, $config->get_fields());
+        $this->assertSame($expected, $config->get_web_service_fields());
+    }
+
+    /**
+     * Test supported match fields without custom profile fields.
+     */
+    public function test_get_supported_match_fields_without_profile_fields() {
+        $config = new config();
+
+        $expected = [
+            'username' => 'Username',
+            'idnumber' => 'ID number',
+            'email' => 'Email address',
+        ];
+
+        $this->assertSame($expected, $config->get_supported_match_fields());
+    }
+
+    /**
+     * Test supported match fields with custom profile fields.
+     */
+    public function test_get_supported_match_fields_with_profile_fields() {
+        $this->resetAfterTest();
+
+        $config = new config();
+
+        // Create bunch of profile fields.
+        $this->add_user_profile_field('text1', 'text', true);
+        $this->add_user_profile_field('checkbox1', 'checkbox', true);
+        $this->add_user_profile_field('checkbox2', 'checkbox');
+        $this->add_user_profile_field('text2', 'text', false);
+        $this->add_user_profile_field('datetime1', 'datetime');
+        $this->add_user_profile_field('menu1', 'menu');
+        $this->add_user_profile_field('textarea1', 'textarea');
+        $this->add_user_profile_field('text3', 'text', true);
+
+        $userfields = [
+            'username' => 'Username',
+            'idnumber' => 'ID number',
+            'email' => 'Email address',
+        ];
+
+        $profilefields = [
+            'profile_field_text1' => 'Test text1',
+            'profile_field_text3' => 'Test text3'
+        ];
+        $expected = array_merge($userfields, $profilefields);
+        $this->assertSame($expected, $config->get_supported_match_fields());
+    }
+
+    /**
+     * Test mandatory fields.
+     */
+    public function test_get_mandatory_fields() {
+        $this->resetAfterTest();
+        $config = new config();
+
+        $expected = ['username', 'lastname', 'firstname', 'email'];
+        $this->assertSame($expected, $config->get_mandatory_fields());
+
+        set_config('usermatchfield', 'lastname', 'tool_userupsert');
+        $config = new config();
+
+        $this->assertSame($expected, $config->get_mandatory_fields());
+
+        set_config('usermatchfield', 'test', 'tool_userupsert');
+        $config = new config();
+
+        $expected[] = 'test';
+        $this->assertSame($expected, $config->get_mandatory_fields());
+    }
+
+    /**
+     * Test user match field.
+     */
+    public function test_get_user_match_field() {
+        $this->resetAfterTest();
+
+        $config = new config();
+        $this->assertSame('username', $config->get_user_match_field());
+
+        set_config('usermatchfield', 'lastname', 'tool_userupsert');
+        $config = new config();
+        $this->assertSame('lastname', $config->get_user_match_field());
+    }
+
+    /**
+     * Test mapping.
+     */
+    public function test_get_data_mapping() {
+        $this->resetAfterTest();
+
+        $config = new config();
+        $this->assertEmpty($config->get_data_mapping());
+
+        set_config('data_map_lastname', 'test_lastname', 'tool_userupsert');
+        set_config('data_map_firstname', 'test_firstname', 'tool_userupsert');
+        set_config('data_map_username', '', 'tool_userupsert');
+        set_config('data_map_profile_field_custom', 'test_custom_field', 'tool_userupsert');
+
+        $config = new config();
+        $datamapping = $config->get_data_mapping();
+
+        $this->assertTrue(key_exists('lastname', $datamapping));
+        $this->assertTrue(key_exists('firstname', $datamapping));
+        $this->assertTrue(key_exists('profile_field_custom', $datamapping));
+        $this->assertFalse(key_exists('username', $datamapping));
+
+        $this->assertSame('test_lastname', $datamapping['lastname']);
+        $this->assertSame('test_firstname', $datamapping['firstname']);
+        $this->assertSame('test_custom_field', $datamapping['profile_field_custom']);
+    }
+
+    /**
+     * Test we can check that the config is ready.
+     */
+    public function test_is_ready() {
+        $this->resetAfterTest();
+
+        // Nothing configured.
+        $config = new config();
+        $this->assertFalse($config->is_ready());
+
+        // Configure WS fields.
+        set_config('webservicefields', 'field1 | Description 1', 'tool_userupsert');
+        $config = new config();
+        $this->assertFalse($config->is_ready());
+
+        // Map matching field.
+        set_config('data_map_username', 'field1', 'tool_userupsert');
+        $config = new config();
+        $this->assertFalse($config->is_ready());
+
+        // Map all mandatory field.
+        set_config('data_map_username', 'field1', 'tool_userupsert');
+        set_config('data_map_lastname', 'field1', 'tool_userupsert');
+        set_config('data_map_firstname', 'field1', 'tool_userupsert');
+        set_config('data_map_email', 'field1', 'tool_userupsert');
+        $config = new config();
+        $this->assertTrue($config->is_ready());
+
+        // Now change matching field to something not actually mapped.
+        set_config('usermatchfield', 'test', 'tool_userupsert');
+        $config = new config();
+        $this->assertFalse($config->is_ready());
+
+        // And now map this field.
+        set_config('data_map_test', 'field1', 'tool_userupsert');
+        $config = new config();
+        $this->assertTrue($config->is_ready());
+
+        // Rename WS field so all mapping will break.
+        set_config('webservicefields', 'field2 | Description 1', 'tool_userupsert');
+        $config = new config();
+        $this->assertFalse($config->is_ready());
     }
 
 }
