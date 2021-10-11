@@ -247,6 +247,8 @@ class config {
 
         // Add extra required fields.
         array_unshift($userfields, "username");
+        $userfields[] = 'auth';
+        $userfields[] = 'password';
 
         // Generate the list of profile fields to allow updates / lock.
         $customfields = array_column(profile_get_custom_fields(true), 'shortname', 'shortname');
@@ -281,6 +283,8 @@ class config {
                 }
             } else if ($fieldname == 'url') {
                 $fieldname = get_string('webpage');
+            } else if ($fieldname == 'auth') {
+                $fieldname = get_string('auth', 'tool_userupsert');
             } else {
                 $fieldname = get_string($fieldname);
             }
