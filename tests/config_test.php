@@ -266,4 +266,23 @@ SETTING;
         $this->assertFalse($config->is_ready());
     }
 
+    /**
+     * Test get get_default_auth when empty config.
+     */
+    public function test_get_default_auth_empty_config() {
+        $config = new config();
+        $this->assertSame('manual', $config->get_default_auth());
+    }
+
+    /**
+     * Test get get_default_auth.
+     */
+    public function test_get_get_default_auth() {
+        $this->resetAfterTest();
+        set_config('defaultauth', 'test', 'tool_userupsert');
+
+        $config = new config();
+        $this->assertSame('test', $config->get_default_auth());
+    }
+
 }

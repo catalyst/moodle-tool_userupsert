@@ -85,6 +85,13 @@ class config {
     private $datamapping = [];
 
     /**
+     * Default auth method.
+     * @var array
+     */
+    private $defaultauth = 'manual';
+
+
+    /**
      * Constructor.
      */
     public function __construct() {
@@ -118,6 +125,10 @@ class config {
         foreach ($fieldmap as $name => $value) {
             $name = preg_replace("/data_map_/", "", $name, 1);
             $this->datamapping[$name] = $value;
+        }
+
+        if (!empty($config->defaultauth)) {
+            $this->defaultauth = $config->defaultauth;
         }
     }
 
@@ -227,6 +238,13 @@ class config {
         }
 
         return true;
+    }
+
+    /**
+     * Returns configured auth method.
+     */
+    public function get_default_auth(): string {
+        return $this->defaultauth;
     }
 
     /**

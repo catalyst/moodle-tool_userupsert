@@ -67,4 +67,26 @@ if ($hassiteconfig) {
     );
 
     $config->display_data_mapping_settings($settings);
+
+    $settings->add(new admin_setting_heading(
+            'tool_userupsert/defaultauthheader',
+            get_string('defaultauth', 'tool_userupsert'),
+            '')
+    );
+
+    $authtypes = get_enabled_auth_plugins(true);
+    $authselect = [];
+    foreach ($authtypes as $type) {
+        $auth = get_auth_plugin($type);
+        $authselect[$type] = $auth->get_title();
+    }
+
+    $settings->add(new admin_setting_configselect(
+        'tool_userupsert/defaultauth',
+        get_string('defaultauth', 'tool_userupsert'),
+        get_string('defaultauth_desc', 'tool_userupsert'),
+        'manual',
+        $authselect
+    ));
+
 }

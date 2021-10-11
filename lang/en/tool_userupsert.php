@@ -42,4 +42,6 @@ $string['usermatchfield'] = 'User match field';
 $string['usermatchfield_desc'] = 'This field will be used for finding a user in Moodle. Make sure that you have mapped this it with Web service fields in Data mapping.';
 $string['notconfigured'] = 'The plugin is not configured properly. Please check the errors below.';
 $string['mappingerror'] = 'Web service field mapping is required for this field.';
+$string['defaultauth'] = 'Default authentication method';
 $string['auth'] = 'Authentication method';
+$string['defaultauth_desc'] = 'If an authentication method is not provided in Web service data, then this auth method will be set by default.';
