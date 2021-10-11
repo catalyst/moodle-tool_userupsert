@@ -166,7 +166,7 @@ SETTING;
         $this->resetAfterTest();
         $config = new config();
 
-        $expected = ['username', 'lastname', 'firstname', 'email'];
+        $expected = ['username', 'lastname', 'firstname', 'email', 'status'];
         $this->assertSame($expected, $config->get_mandatory_fields());
 
         set_config('usermatchfield', 'lastname', 'tool_userupsert');
@@ -247,6 +247,7 @@ SETTING;
         set_config('data_map_lastname', 'field1', 'tool_userupsert');
         set_config('data_map_firstname', 'field1', 'tool_userupsert');
         set_config('data_map_email', 'field1', 'tool_userupsert');
+        set_config('data_map_status', 'field1', 'tool_userupsert');
         $config = new config();
         $this->assertTrue($config->is_ready());
 

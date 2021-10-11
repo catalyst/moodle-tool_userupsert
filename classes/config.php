@@ -180,7 +180,7 @@ class config {
      * @return string[]
      */
     public function get_mandatory_fields(): array {
-        $fields = ['username', 'lastname', 'firstname', 'email'];
+        $fields = ['username', 'lastname', 'firstname', 'email', 'status'];
 
         if (!in_array($this->usermatchfield, $fields)) {
             $fields[] = $this->usermatchfield;
@@ -267,6 +267,7 @@ class config {
         array_unshift($userfields, "username");
         $userfields[] = 'auth';
         $userfields[] = 'password';
+        $userfields[] = 'status';
 
         // Generate the list of profile fields to allow updates / lock.
         $customfields = array_column(profile_get_custom_fields(true), 'shortname', 'shortname');
@@ -308,6 +309,9 @@ class config {
                         break;
                     case 'auth':
                         $fieldname = get_string('auth', 'tool_userupsert');
+                        break;
+                    case 'status':
+                        $fieldname = get_string('status', 'tool_userupsert');
                         break;
                     default:
                         $fieldname = get_string($fieldname);
