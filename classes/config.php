@@ -286,9 +286,8 @@ class config {
             // this includes special handling for some profile fields.
             $fieldname = $field;
             $fieldnametoolong = false;
-            if ($fieldname === 'lang') {
-                $fieldname = get_string('language');
-            } else if (!empty($customfields) && in_array($field, $customfields)) {
+
+            if (!empty($customfields) && in_array($field, $customfields)) {
                 // If custom field then pick name from database.
                 $fieldshortname = str_replace('profile_field_', '', $fieldname);
                 $fieldname = $customfieldname[$fieldshortname]->name;
@@ -299,12 +298,20 @@ class config {
                     // limit for the setting name is 100.
                     $fieldnametoolong = true;
                 }
-            } else if ($fieldname == 'url') {
-                $fieldname = get_string('webpage');
-            } else if ($fieldname == 'auth') {
-                $fieldname = get_string('auth', 'tool_userupsert');
             } else {
-                $fieldname = get_string($fieldname);
+                switch ($fieldname) {
+                    case 'lang':
+                        $fieldname = get_string('language');
+                        break;
+                    case 'url':
+                        $fieldname = get_string('webpage');
+                        break;
+                    case 'auth':
+                        $fieldname = get_string('auth', 'tool_userupsert');
+                        break;
+                    default:
+                        $fieldname = get_string($fieldname);
+                }
             }
 
             // Generate the list of fields / mappings.
