@@ -146,6 +146,10 @@ class profile_fields {
         $userfields[] = 'password';
         $userfields[] = 'status';
 
+        if (($key = array_search('url', $userfields)) !== false) {
+            unset($userfields[$key]);
+        }
+
         // Generate the list of profile fields to allow updates / lock.
         $customfields = array_column(profile_get_custom_fields(true), 'shortname', 'shortname');
         if (!empty($customfields)) {
@@ -170,9 +174,6 @@ class profile_fields {
                 switch ($field) {
                     case 'lang':
                         $fielddescription = get_string('language');
-                        break;
-                    case 'url':
-                        $fielddescription = get_string('webpage');
                         break;
                     case 'auth':
                         $fielddescription = get_string('auth', 'tool_userupsert');

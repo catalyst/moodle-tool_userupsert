@@ -201,7 +201,6 @@ class profile_fields_test extends advanced_testcase {
             'country' => 'Country',
             'lang' => 'Language',
             'description' => 'Description',
-            'url' => 'Web page',
             'idnumber' => 'ID number',
             'institution' => 'Institution',
             'department' => 'Department',
