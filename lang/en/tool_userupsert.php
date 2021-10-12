@@ -46,3 +46,4 @@ $string['defaultauth'] = 'Default authentication method';
 $string['auth'] = 'Authentication method';
 $string['defaultauth_desc'] = 'If an authentication method is not provided in Web service data, then this auth method will be set by default.';
 $string['status'] = 'Status - active, deleted or suspended';
+$string['error:morethanoneuser'] = 'More than one user found.';
