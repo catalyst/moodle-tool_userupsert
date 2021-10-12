@@ -34,8 +34,6 @@ use moodle_url;
 
 defined('MOODLE_INTERNAL') || die();
 
-require_once($CFG->dirroot . '/user/profile/lib.php');
-
 /**
  * Config class.
  *
@@ -44,27 +42,6 @@ require_once($CFG->dirroot . '/user/profile/lib.php');
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class config {
-
-    /**
-     * A list of user matching fields from {user} table
-     */
-    const MATCH_FIELDS_FROM_USER_TABLE = [
-        'username',
-        'idnumber',
-        'email',
-    ];
-
-    /**
-     * A list of supported types of profile fields.
-     */
-    const SUPPORTED_TYPES_OF_PROFILE_FIELDS = [
-        'text'
-    ];
-
-    /**
-     * Prefix for profile fields in the config.
-     */
-    const PROFILE_FIELD_PREFIX = 'profile_field_';
 
     /**
      * A list of configured web service field and their descriptions.
@@ -139,39 +116,6 @@ class config {
      */
     public function get_web_service_fields(): array {
         return $this->webservicefields;
-    }
-
-    /**
-     * Get a list of fields to be able to match by.
-     *
-     * @return string[]
-     */
-    public function get_supported_match_fields() : array {
-        $choices = [];
-
-        foreach (self::MATCH_FIELDS_FROM_USER_TABLE as $name) {
-            $choices[$name] = get_string($name);
-        }
-
-        $customfields = profile_get_custom_fields(true);
-
-        if (!empty($customfields)) {
-            $result = array_filter($customfields, function($customfield) {
-                return in_array($customfield->datatype, self::SUPPORTED_TYPES_OF_PROFILE_FIELDS) &&
-                    $customfield->forceunique == 1;
-            });
-
-            $customfieldoptions = array_column($result, 'name', 'shortname');
-
-            foreach ($customfieldoptions as $key => $value) {
-                $customfieldoptions[$this->prefix_custom_profile_field($key)] = $value;
-                unset($customfieldoptions[$key]);
-            }
-
-            $choices = array_merge($choices, $customfieldoptions);
-        }
-
-        return $choices;
     }
 
     /**
@@ -374,16 +318,6 @@ class config {
         }
 
         return !empty($field->name) && !strpos($field->name, ' ') && !empty($field->description);
-    }
-
-    /**
-     * Build setting value for a  user profile field.
-     *
-     * @param string $shortname Short name of the profile field.
-     * @return string
-     */
-    private function prefix_custom_profile_field(string $shortname) : string {
-        return self::PROFILE_FIELD_PREFIX . $shortname;
     }
 
 }

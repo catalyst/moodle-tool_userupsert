@@ -39,45 +39,6 @@ defined('MOODLE_INTERNAL') || die();
 class config_test extends advanced_testcase {
 
     /**
-     * A helper function to create a custom profile field.
-     *
-     * @param string $shortname Short name of the field.
-     * @param string $datatype Type of the field, e.g. text, checkbox, datetime, menu and etc.
-     * @param bool $unique Should the field to be unique?
-     *
-     * @return \stdClass
-     */
-    protected function add_user_profile_field(string $shortname, string $datatype, bool $unique = false) : \stdClass {
-        global $DB;
-
-        // Create a new profile field.
-        $data = new \stdClass();
-        $data->shortname = $shortname;
-        $data->datatype = $datatype;
-        $data->name = 'Test ' . $shortname;
-        $data->description = 'This is a test field';
-        $data->required = false;
-        $data->locked = false;
-        $data->forceunique = $unique;
-        $data->signup = false;
-        $data->visible = '0';
-        $data->categoryid = '0';
-
-        $DB->insert_record('user_info_field', $data);
-
-        return $data;
-    }
-
-    /**
-     * Test class constants.
-     */
-    public function test_constants() {
-        $this->assertSame(['username', 'idnumber', 'email'], config::MATCH_FIELDS_FROM_USER_TABLE);
-        $this->assertSame(['text'], config::SUPPORTED_TYPES_OF_PROFILE_FIELDS);
-        $this->assertSame('profile_field_', config::PROFILE_FIELD_PREFIX);
-    }
-
-    /**
      * Test get webservicefields when empty config.
      */
     public function test_get_webservicefields_empty_config() {
@@ -110,53 +71,6 @@ SETTING;
         ];
 
         $this->assertSame($expected, $config->get_web_service_fields());
-    }
-
-    /**
-     * Test supported match fields without custom profile fields.
-     */
-    public function test_get_supported_match_fields_without_profile_fields() {
-        $config = new config();
-
-        $expected = [
-            'username' => 'Username',
-            'idnumber' => 'ID number',
-            'email' => 'Email address',
-        ];
-
-        $this->assertSame($expected, $config->get_supported_match_fields());
-    }
-
-    /**
-     * Test supported match fields with custom profile fields.
-     */
-    public function test_get_supported_match_fields_with_profile_fields() {
-        $this->resetAfterTest();
-
-        $config = new config();
-
-        // Create bunch of profile fields.
-        $this->add_user_profile_field('text1', 'text', true);
-        $this->add_user_profile_field('checkbox1', 'checkbox', true);
-        $this->add_user_profile_field('checkbox2', 'checkbox');
-        $this->add_user_profile_field('text2', 'text', false);
-        $this->add_user_profile_field('datetime1', 'datetime');
-        $this->add_user_profile_field('menu1', 'menu');
-        $this->add_user_profile_field('textarea1', 'textarea');
-        $this->add_user_profile_field('text3', 'text', true);
-
-        $userfields = [
-            'username' => 'Username',
-            'idnumber' => 'ID number',
-            'email' => 'Email address',
-        ];
-
-        $profilefields = [
-            'profile_field_text1' => 'Test text1',
-            'profile_field_text3' => 'Test text3'
-        ];
-        $expected = array_merge($userfields, $profilefields);
-        $this->assertSame($expected, $config->get_supported_match_fields());
     }
 
     /**

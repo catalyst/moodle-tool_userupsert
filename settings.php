@@ -24,6 +24,7 @@
  */
 
 use tool_userupsert\config;
+use tool_userupsert\profile_fields;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -63,7 +64,7 @@ if ($hassiteconfig) {
         get_string('usermatchfield', 'tool_userupsert'),
         get_string('usermatchfield_desc', 'tool_userupsert'),
         'username',
-        $config->get_supported_match_fields())
+        profile_fields::get_supported_match_fields())
     );
 
     $config->display_data_mapping_settings($settings);
