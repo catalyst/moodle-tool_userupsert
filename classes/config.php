@@ -28,7 +28,6 @@ use admin_settingpage;
 use admin_setting_heading;
 use admin_setting_configselect;
 use lang_string;
-use core_user;
 use core_text;
 use moodle_url;
 
@@ -194,86 +193,36 @@ class config {
     /**
      * Adds data mapping to the settings page.
      *
-     * This is pretty much copy of lib/authlib.php:display_auth_lock_options.
-     *
      * @param \admin_settingpage $settings Settings.
      */
     public function display_data_mapping_settings(admin_settingpage $settings) {
-        global $DB, $OUTPUT;
+        global $OUTPUT;
 
-        // Introductory explanation and help text.
-        $settings->add(new admin_setting_heading('tool_userupsert/data_mapping',
-            new lang_string('auth_data_mapping', 'auth'), get_string('datamapping', 'tool_userupsert')));
+        $settings->add(new admin_setting_heading(
+            'tool_userupsert/data_mapping',
+            new lang_string('auth_data_mapping', 'auth'),
+            get_string('datamapping', 'tool_userupsert')
+        ));
 
-        $userfields = core_user::AUTHSYNCFIELDS;
-
-        // Add extra required fields.
-        array_unshift($userfields, "username");
-        $userfields[] = 'auth';
-        $userfields[] = 'password';
-        $userfields[] = 'status';
-
-        // Generate the list of profile fields to allow updates / lock.
-        $customfields = array_column(profile_get_custom_fields(true), 'shortname', 'shortname');
-        if (!empty($customfields)) {
-
-            // Prefix custom profile fields to be able to distinguish.
-            array_walk($customfields, function(&$value) {
-                $value = 'profile_field_' . $value;
-            });
-
-            $userfields = array_merge($userfields, $customfields);
-            $customfieldname = $DB->get_records('user_info_field', null, '', 'shortname, name');
-        }
-
-        foreach ($userfields as $field) {
-            // Define the fieldname we display to the  user.
-            // this includes special handling for some profile fields.
+        foreach (profile_fields::get_profile_fields() as $field => $description) {
             $fieldname = $field;
-            $fieldnametoolong = false;
 
-            if (!empty($customfields) && in_array($field, $customfields)) {
-                // If custom field then pick name from database.
-                $fieldshortname = str_replace('profile_field_', '', $fieldname);
-                $fieldname = $customfieldname[$fieldshortname]->name;
-
-                if (core_text::strlen($fieldshortname) > 67) {
-                    // If custom profile field name is longer than 67 characters we will not be able to store the setting
-                    // such as 'field_updateremote_profile_field_NOTSOSHORTSHORTNAME' in the database because the character
-                    // limit for the setting name is 100.
-                    $fieldnametoolong = true;
-                }
-            } else {
-                switch ($fieldname) {
-                    case 'lang':
-                        $fieldname = get_string('language');
-                        break;
-                    case 'url':
-                        $fieldname = get_string('webpage');
-                        break;
-                    case 'auth':
-                        $fieldname = get_string('auth', 'tool_userupsert');
-                        break;
-                    case 'status':
-                        $fieldname = get_string('status', 'tool_userupsert');
-                        break;
-                    default:
-                        $fieldname = get_string($fieldname);
-                }
+            if (profile_fields::is_custom_profile_field($field)) {
+                $fieldname = profile_fields::get_field_short_name($field);
             }
 
-            // Generate the list of fields / mappings.
-            if ($fieldnametoolong) {
+            // This is pretty much copy of lib/authlib.php:display_auth_lock_options.
+            if (core_text::strlen($fieldname) > 67) {
                 // Display a message that the field can not be mapped because it's too long.
                 $url = new moodle_url('/user/profile/index.php');
                 $a = (object)['fieldname' => s($fieldname), 'shortname' => s($field), 'charlimit' => 67, 'link' => $url->out()];
                 $settings->add(new admin_setting_heading('tool_userupsert/field_not_mapped_'.sha1($field), '',
                     get_string('cannotmapfield', 'auth', $a)));
             } else {
+                $error = '';
 
-                $description = '';
                 if ($this->is_missing_mapping($field)) {
-                    $description = $OUTPUT->notification(get_string('mappingerror', 'tool_userupsert'));
+                    $error = $OUTPUT->notification(get_string('mappingerror', 'tool_userupsert'));
                 }
 
                 $choices = ['' => get_string('none')];
@@ -283,7 +232,7 @@ class config {
 
                 // We are mapping to a remote field here.
                 $settings->add(new admin_setting_configselect("tool_userupsert/data_map_{$field}",
-                    get_string('auth_fieldmapping', 'auth', $fieldname), $description, '', $choices));
+                    get_string('auth_fieldmapping', 'auth', $description), $error, '', $choices));
             }
         }
     }

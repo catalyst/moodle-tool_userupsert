@@ -25,7 +25,6 @@
 namespace tool_userupsert\tests;
 
 use advanced_testcase;
-use tool_userupsert\config;
 use tool_userupsert\profile_fields;
 
 defined('MOODLE_INTERNAL') || die();
@@ -121,11 +120,6 @@ class profile_fields_test extends advanced_testcase {
         $this->assertSame($expected, profile_fields::get_supported_match_fields());
     }
 
-
-    public function test_prefix_prefix_custom_profile_field() {
-
-    }
-
     /**
      * Test data for self::test_is_custom_profile_field().
      * @return array
@@ -178,6 +172,56 @@ class profile_fields_test extends advanced_testcase {
      */
     public function test_get_short_name(string $value, string $expected) {
         $this->assertSame($expected, profile_fields::get_field_short_name($value));
+    }
+
+    /**
+     * Test prefixing a custom profile field.
+     */
+    public function test_prefix_prefix_custom_profile_field() {
+        $this->assertSame(profile_fields::PROFILE_FIELD_PREFIX . 'test', profile_fields::prefix_custom_profile_field('test'));
+    }
+
+    /**
+     * Test getting all profile fields.
+     */
+    public function test_get_profile_fields() {
+        $this->resetAfterTest();
+
+        $this->add_user_profile_field('text1', 'text', true);
+        $this->add_user_profile_field('checkbox1', 'checkbox', true);
+        $this->add_user_profile_field('checkbox2', 'checkbox');
+        $this->add_user_profile_field('text2', 'text');
+
+        $expected = [
+            'username' => 'Username',
+            'firstname' => 'First name',
+            'lastname' => 'Surname',
+            'email' => 'Email address',
+            'city' => 'City/town',
+            'country' => 'Country',
+            'lang' => 'Language',
+            'description' => 'Description',
+            'url' => 'Web page',
+            'idnumber' => 'ID number',
+            'institution' => 'Institution',
+            'department' => 'Department',
+            'phone1' => 'Phone',
+            'phone2' => 'Mobile phone',
+            'address' => 'Address',
+            'firstnamephonetic' => 'First name - phonetic',
+            'lastnamephonetic' => 'Surname - phonetic',
+            'middlename' => 'Middle name',
+            'alternatename' => 'Alternate name',
+            'auth' => 'Authentication method',
+            'password' => 'Password',
+            'status' => 'Status - active, deleted or suspended',
+            'profile_field_text1' => 'Test text1',
+            'profile_field_checkbox1' => 'Test checkbox1',
+            'profile_field_checkbox2' => 'Test checkbox2',
+            'profile_field_text2' => 'Test text2',
+        ];
+
+        $this->assertSame($expected, profile_fields::get_profile_fields());
     }
 
 }

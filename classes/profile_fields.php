@@ -24,6 +24,8 @@
 
 namespace tool_userupsert;
 
+use core_user;
+
 defined('MOODLE_INTERNAL') || die();
 
 require_once($CFG->dirroot . '/user/profile/lib.php');
@@ -123,6 +125,70 @@ class profile_fields {
         }
 
         return $fieldname;
+    }
+
+    /**
+     * Returns a list of all profile fields where key is field and value is its description.
+     * Custom profile fields are prefixed as self::PROFILE_FIELD_PREFIX.
+     *
+     * @return array
+     */
+    public static function get_profile_fields(): array {
+        global $DB;
+
+        $fields = [];
+
+        $userfields = core_user::AUTHSYNCFIELDS;
+
+        // Add extra required fields.
+        array_unshift($userfields, "username");
+        $userfields[] = 'auth';
+        $userfields[] = 'password';
+        $userfields[] = 'status';
+
+        // Generate the list of profile fields to allow updates / lock.
+        $customfields = array_column(profile_get_custom_fields(true), 'shortname', 'shortname');
+        if (!empty($customfields)) {
+
+            // Prefix custom profile fields to be able to distinguish.
+            array_walk($customfields, function(&$value) {
+                $value = self::PROFILE_FIELD_PREFIX . $value;
+            });
+
+            $userfields = array_merge($userfields, $customfields);
+            $customfieldname = $DB->get_records('user_info_field', null, '', 'shortname, name');
+        }
+
+        foreach ($userfields as $field) {
+            // Define the fieldname we display to the  user.
+            // this includes special handling for some profile fields.
+            $fieldname = $field;
+
+            if (!empty($customfields) && in_array($field, $customfields)) {
+                $fielddescription = $customfieldname[self::get_field_short_name($field)]->name;
+            } else {
+                switch ($field) {
+                    case 'lang':
+                        $fielddescription = get_string('language');
+                        break;
+                    case 'url':
+                        $fielddescription = get_string('webpage');
+                        break;
+                    case 'auth':
+                        $fielddescription = get_string('auth', 'tool_userupsert');
+                        break;
+                    case 'status':
+                        $fielddescription = get_string('status', 'tool_userupsert');
+                        break;
+                    default:
+                        $fielddescription = get_string($fieldname);
+                }
+            }
+
+            $fields[$field] = $fielddescription;
+        }
+
+        return $fields;
     }
 
 }
