@@ -36,7 +36,7 @@ defined('MOODLE_INTERNAL') || die();
  * @copyright   2021 Catalyst IT
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class settings_test extends advanced_testcase {
+class config_test extends advanced_testcase {
 
     /**
      * A helper function to create a custom profile field.
