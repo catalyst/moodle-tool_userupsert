@@ -29,8 +29,9 @@ use tool_userupsert\more_than_one_user_found_exception;
 use tool_userupsert\user_extractor;
 use dml_read_exception;
 
-
 defined('MOODLE_INTERNAL') || die();
+
+require_once(__DIR__ . '/test_helper_trait.php');
 
 /**
  * Test for user extractor class.
@@ -40,36 +41,7 @@ defined('MOODLE_INTERNAL') || die();
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class user_extractor_test extends advanced_testcase {
-
-    /**
-     * A helper function to create a custom profile field.
-     *
-     * @param string $shortname Short name of the field.
-     * @param string $datatype Type of the field, e.g. text, checkbox, datetime, menu and etc.
-     * @param bool $unique Should the field to be unique?
-     *
-     * @return \stdClass
-     */
-    protected function add_user_profile_field(string $shortname, string $datatype, bool $unique = false): \stdClass {
-        global $DB;
-
-        // Create a new profile field.
-        $data = new \stdClass();
-        $data->shortname = $shortname;
-        $data->datatype = $datatype;
-        $data->name = 'Test ' . $shortname;
-        $data->description = 'This is a test field';
-        $data->required = false;
-        $data->locked = false;
-        $data->forceunique = $unique;
-        $data->signup = false;
-        $data->visible = '0';
-        $data->categoryid = '0';
-
-        $DB->insert_record('user_info_field', $data);
-
-        return $data;
-    }
+    use test_helper_trait;
 
     /**
      * Test we can extract users using fields from {user} table.
