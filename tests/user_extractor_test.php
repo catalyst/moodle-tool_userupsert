@@ -127,6 +127,11 @@ class user_extractor_test extends advanced_testcase {
         profile_save_data((object)['id' => $user2->id, 'profile_field_' . $field1->shortname => 'User 2 Field 1']);
         profile_save_data((object)['id' => $user2->id, 'profile_field_' . $field2->shortname => 'User 2 Field 2']);
 
+        $user3 = $this->getDataGenerator()->create_user();
+        profile_save_data((object)['id' => $user3->id, 'profile_field_' . $field1->shortname => 'User 3 Field 1']);
+        profile_save_data((object)['id' => $user3->id, 'profile_field_' . $field2->shortname => 'User 3 Field 2']);
+        delete_user($user3);
+
         // Should find users.
         $actual = user_extractor::get_user('profile_field_field1', 'User 1 Field 1');
         $this->assertNotNull($actual);
@@ -148,7 +153,13 @@ class user_extractor_test extends advanced_testcase {
         $actual = user_extractor::get_user('profile_field_field1', 'User 3 Field 1');
         $this->assertNull($actual);
 
-        $actual = user_extractor::get_user('profile_field_field3', 'User 3 Field 1');
+        $actual = user_extractor::get_user('profile_field_field3', 'User 3 Field 2');
+        $this->assertNull($actual);
+
+        $actual = user_extractor::get_user('profile_field_field1', 'User 4 Field 1');
+        $this->assertNull($actual);
+
+        $actual = user_extractor::get_user('profile_field_field3', 'User 4 Field 2');
         $this->assertNull($actual);
     }
 
