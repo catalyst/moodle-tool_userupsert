@@ -185,4 +185,38 @@ class user_extractor_test extends advanced_testcase {
         user_extractor::get_user('profile_field_field1', 'User 1 Field 1');
     }
 
+    /**
+     * Test is_email_taken.
+     */
+    public function test_is_email_taken() {
+        $this->resetAfterTest();
+
+        $user = $this->getDataGenerator()->create_user();
+
+        $this->assertFalse(user_extractor::is_email_taken('random@test.com'));
+        $this->assertFalse(user_extractor::is_email_taken('random@test.com', $user->id));
+        $this->assertFalse(user_extractor::is_email_taken($user->email, $user->id));
+        $this->assertTrue(user_extractor::is_email_taken($user->email));
+
+        delete_user($user);
+        $this->assertFalse(user_extractor::is_email_taken($user->email));
+    }
+
+    /**
+     * Test is_username_taken.
+     */
+    public function test_is_username_taken() {
+        $this->resetAfterTest();
+
+        $user = $this->getDataGenerator()->create_user();
+
+        $this->assertFalse(user_extractor::is_username_taken('random'));
+        $this->assertFalse(user_extractor::is_username_taken('random', $user->id));
+        $this->assertFalse(user_extractor::is_username_taken($user->username, $user->id));
+        $this->assertTrue(user_extractor::is_username_taken($user->username));
+
+        delete_user($user);
+        $this->assertFalse(user_extractor::is_username_taken($user->username));
+    }
+
 }

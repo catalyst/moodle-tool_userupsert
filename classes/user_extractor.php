@@ -91,4 +91,63 @@ class user_extractor {
         return $user;
     }
 
+    /**
+     * Check if given email is taken by other user(s).
+     *
+     * @param string $email Email to check.
+     * @param int | null $excludeuserid A user id to exclude.
+     *
+     * @return bool
+     */
+    public static function is_email_taken(string $email, ?int $excludeuserid = null): bool {
+        return self::is_user_field_taken('email', $email, $excludeuserid);
+    }
+
+    /**
+     * Check if given email is taken by other user(s).
+     *
+     * @param string $username username to check.
+     * @param int | null $excludeuserid A user id to exclude.
+     *
+     * @return bool
+     */
+    public static function is_username_taken(string $username, ?int $excludeuserid = null): bool {
+        return self::is_user_field_taken('username', $username, $excludeuserid);
+    }
+
+    /**
+     * Check if the field is taken.
+     *
+     * @param string $fieldname Field name.
+     * @param string $value Field value.
+     * @param int | null $excludeuserid A user id to exclude.
+     *
+     * @return bool
+     */
+    private static function is_user_field_taken(string $fieldname, string $value, ?int $excludeuserid = null): bool {
+        global $CFG, $DB;
+
+        if (!empty($fieldname)) {
+            // Make a case-insensitive query for the given email address.
+            $select = $DB->sql_equal($fieldname, ':field', false) . ' AND mnethostid = :mnethostid AND deleted = :deleted';
+            $params = array(
+                'field' => $value,
+                'mnethostid' => $CFG->mnet_localhost_id,
+                'deleted' => 0
+            );
+
+            if ($excludeuserid) {
+                $select .= ' AND id <> :userid';
+                $params['userid'] = $excludeuserid;
+            }
+
+            // If there are other user(s) that already have the same email, display an error.
+            if ($DB->record_exists_select('user', $select, $params)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
 }
