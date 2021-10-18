@@ -48,4 +48,5 @@ $string['defaultauth_desc'] = 'If an authentication method is not provided in We
 $string['status'] = 'Status - active, deleted or suspended';
 $string['error:morethanoneuser'] = 'More than one user found.';
 $string['error:missingfield'] = 'Missing mandatory field {$a}';
-
+$string['error:notconfigured'] = 'Upsert plugin is not configured';
+$string['error:customfield'] = 'Error setting custom fields';
