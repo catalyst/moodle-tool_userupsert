@@ -23,17 +23,71 @@
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+use tool_userupsert\config;
+use tool_userupsert\profile_fields;
+
 defined('MOODLE_INTERNAL') || die();
 
 if ($hassiteconfig) {
 
+    $config = new config();
+
     $settings = new admin_settingpage('tool_userupsert', get_string('pluginname', 'tool_userupsert'));
     $ADMIN->add('tools', $settings);
 
+    if (!$config->is_ready()) {
+        $error = $OUTPUT->notification(get_string('notconfigured', 'tool_userupsert'));
+        $settings->add(new admin_setting_heading('tool_userupsert/generalsettings', '', $error));
+    }
+
+    $settings->add(new admin_setting_heading(
+        'tool_userupsert/wsfields',
+        get_string('webservicefields', 'tool_userupsert'),
+        '')
+    );
+
     $settings->add(new admin_setting_configtextarea(
-            'tool_userupsert/fields',
-            get_string('fields', 'tool_userupsert'),
-            get_string('fields_desc', 'tool_userupsert'),
+        'tool_userupsert/webservicefields',
+        get_string('webservicefields', 'tool_userupsert'),
+        get_string('webservicefields_desc', 'tool_userupsert'),
+        '')
+    );
+
+    $settings->add(new admin_setting_heading(
+        'tool_userupsert/mapping',
+        get_string('usermatchfield', 'tool_userupsert'),
+        '')
+    );
+
+    $settings->add(new admin_setting_configselect(
+        'tool_userupsert/usermatchfield',
+        get_string('usermatchfield', 'tool_userupsert'),
+        get_string('usermatchfield_desc', 'tool_userupsert'),
+        'username',
+        profile_fields::get_supported_match_fields())
+    );
+
+    $config->display_data_mapping_settings($settings);
+
+    $settings->add(new admin_setting_heading(
+            'tool_userupsert/defaultauthheader',
+            get_string('defaultauth', 'tool_userupsert'),
             '')
     );
+
+    $authtypes = get_enabled_auth_plugins(true);
+    $authselect = [];
+    foreach ($authtypes as $type) {
+        $auth = get_auth_plugin($type);
+        $authselect[$type] = $auth->get_title();
+    }
+
+    $settings->add(new admin_setting_configselect(
+        'tool_userupsert/defaultauth',
+        get_string('defaultauth', 'tool_userupsert'),
+        get_string('defaultauth_desc', 'tool_userupsert'),
+        'manual',
+        $authselect
+    ));
+
 }

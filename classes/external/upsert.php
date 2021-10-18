@@ -52,7 +52,7 @@ class upsert extends external_api {
         $config = new config();
         $userfields = [];
 
-        foreach ($config->get_fields() as $field => $description) {
+        foreach ($config->get_web_service_fields() as $field => $description) {
             $userfields[$field] = new external_value(PARAM_RAW, $description);
         }
 
