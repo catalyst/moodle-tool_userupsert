@@ -164,7 +164,7 @@ class user_extractor_test extends advanced_testcase {
     }
 
     /**
-     * Test we can extract users using custom profile fields when found multiple users.
+     * Test we can not extract users using custom profile fields when found multiple users.
      */
     public function test_get_user_by_custom_profile_field_when_multiple_users_found() {
         $this->resetAfterTest();
