@@ -36,6 +36,8 @@ class missing_field_exception extends \moodle_exception {
 
     /**
      * Constructor.
+     *
+     * @param string $field Missing field name.
      */
     public function __construct(string $field) {
         parent::__construct('error:missingfield', 'tool_userupsert', '', $field, null);

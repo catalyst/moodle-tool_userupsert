@@ -127,6 +127,8 @@ SETTING;
      * Test exception of missing mandatory field.
      *
      * @dataProvider exception_thrown_if_missing_mandatory_field_data_provider
+     *
+     * @param string $mandatoryfield Field for testing.
      */
     public function test_exception_thrown_if_missing_mandatory_field(string $mandatoryfield) {
         $this->resetAfterTest();

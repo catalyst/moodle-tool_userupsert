@@ -35,7 +35,10 @@ defined('MOODLE_INTERNAL') || die();
 class upset_failed_exception extends \moodle_exception {
 
     /**
-     * Constructor.
+     * Constructor
+     *
+     * @param string $errorcode Error code.
+     * @param string|null $debuginfo Additional debug information.
      */
     public function __construct(string $errorcode, ?string $debuginfo = null) {
         parent::__construct($errorcode, 'tool_userupsert', '', '', $debuginfo);

@@ -95,7 +95,7 @@ class user_extractor {
      * Check if given email is taken by other user(s).
      *
      * @param string $email Email to check.
-     * @param int | null $excludeuserid A user id to exclude.
+     * @param int|null $excludeuserid A user id to exclude.
      *
      * @return bool
      */
@@ -107,7 +107,7 @@ class user_extractor {
      * Check if given email is taken by other user(s).
      *
      * @param string $username username to check.
-     * @param int | null $excludeuserid A user id to exclude.
+     * @param int|null $excludeuserid A user id to exclude.
      *
      * @return bool
      */
@@ -120,7 +120,7 @@ class user_extractor {
      *
      * @param string $fieldname Field name.
      * @param string $value Field value.
-     * @param int | null $excludeuserid A user id to exclude.
+     * @param int|null $excludeuserid A user id to exclude.
      *
      * @return bool
      */

@@ -127,9 +127,6 @@ class user_manager {
      * Upserts user based on provided data.
      *
      * @param array $data User data where the key is field and value is value.
-     *
-     * @throws \tool_userupsert\missing_field_exception
-     * @throws \tool_userupsert\upset_failed_exception
      */
     public function upsert_user(array $data) {
         global $CFG;
@@ -217,8 +214,6 @@ class user_manager {
      * Validate user status.
      *
      * @param string $status Status to validate.
-     *
-     * @throws \tool_userupsert\upset_failed_exception
      */
     private function validate_status(string $status) {
         if (!in_array($status, self::VALID_USER_STATUSES)) {
@@ -231,8 +226,6 @@ class user_manager {
      * Validate email.
      *
      * @param string $email Email to validate.
-     *
-     * @throws \tool_userupsert\upset_failed_exception
      */
     private function validate_email(string $email) {
         if (!validate_email($email)) {
@@ -249,8 +242,6 @@ class user_manager {
      * Delete provided user.
      *
      * @param \stdClass $user User object.
-     *
-     * @throws \tool_userupsert\upset_failed_exception
      */
     private function delete_user(\stdClass $user) {
         try {
