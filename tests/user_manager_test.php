@@ -74,6 +74,8 @@ SETTING;
         set_config('data_map_auth', 'Auth', 'tool_userupsert');
         set_config('data_map_password', 'Password', 'tool_userupsert');
         set_config('data_map_status', 'Status', 'tool_userupsert');
+
+        set_config('usermatchfield', 'username', 'tool_userupsert');
     }
 
     /**
@@ -95,6 +97,13 @@ SETTING;
         foreach ($this->config->get_data_mapping() as $wsfield) {
             $data[$wsfield] = 'Test';
         }
+
+        $data[$this->config->get_data_mapping()['username']] = 'test';
+        $data[$this->config->get_data_mapping()['email']] = 'test@test.com';
+        $data[$this->config->get_data_mapping()['status']] = 'active';
+        $data[$this->config->get_data_mapping()['password']] = 'nhy6^YHN';
+        $data[$this->config->get_data_mapping()['auth']] = 'manual';
+
         return $data;
     }
 
@@ -182,7 +191,6 @@ SETTING;
     public function test_incorrect_status() {
         $this->resetAfterTest();
         $this->set_test_config_data();
-        set_config('usermatchfield', 'username', 'tool_userupsert');
         $usermanager = $this->get_user_manager();
         $this->config = new config();
 
@@ -205,7 +213,6 @@ SETTING;
 
         $this->resetAfterTest();
         $this->set_test_config_data();
-        set_config('usermatchfield', 'username', 'tool_userupsert');
         $usermanager = $this->get_user_manager();
         $this->config = new config();
 
@@ -233,7 +240,6 @@ SETTING;
 
         $this->resetAfterTest();
         $this->set_test_config_data();
-        set_config('usermatchfield', 'username', 'tool_userupsert');
         $usermanager = $this->get_user_manager();
         $this->config = new config();
 
@@ -257,14 +263,12 @@ SETTING;
     public function test_exception_when_invalid_email_new_user() {
         $this->resetAfterTest();
         $this->set_test_config_data();
-        set_config('usermatchfield', 'username', 'tool_userupsert');
 
         $usermanager = $this->get_user_manager();
         $this->config = new config();
 
         $data = $this->get_web_service_data();
 
-        $data[$this->config->get_data_mapping()['status']] = 'active';
         $data[$this->config->get_data_mapping()['email']] = 'broken@email';
 
         $this->expectException(upset_failed_exception::class);
@@ -279,7 +283,6 @@ SETTING;
     public function test_exception_when_invalid_email_existing_user() {
         $this->resetAfterTest();
         $this->set_test_config_data();
-        set_config('usermatchfield', 'username', 'tool_userupsert');
 
         $usermanager = $this->get_user_manager();
         $this->config = new config();
@@ -288,7 +291,6 @@ SETTING;
         $data = $this->get_web_service_data();
 
         $data[$this->config->get_data_mapping()['username']] = $user->username;
-        $data[$this->config->get_data_mapping()['status']] = 'active';
         $data[$this->config->get_data_mapping()['email']] = 'broken@email';
 
         $this->expectException(upset_failed_exception::class);
@@ -303,7 +305,6 @@ SETTING;
     public function test_exception_when_not_allowed_email_new_user() {
         $this->resetAfterTest();
         $this->set_test_config_data();
-        set_config('usermatchfield', 'username', 'tool_userupsert');
         set_config('allowemailaddresses', 'example.com test.com');
 
         $usermanager = $this->get_user_manager();
@@ -311,8 +312,7 @@ SETTING;
 
         $data = $this->get_web_service_data();
 
-        $data[$this->config->get_data_mapping()['status']] = 'active';
-        $data[$this->config->get_data_mapping()['email']] = 'fromuser@moodle.com';
+        $data[$this->config->get_data_mapping()['email']] = 'notallowed@moodle.com';
 
         $this->expectException(upset_failed_exception::class);
         $this->expectExceptionMessage('tool_userupsert/notallowedemail');
@@ -326,7 +326,6 @@ SETTING;
     public function test_exception_when_not_allowed_email_existing_user() {
         $this->resetAfterTest();
         $this->set_test_config_data();
-        set_config('usermatchfield', 'username', 'tool_userupsert');
         set_config('allowemailaddresses', 'example.com test.com');
 
         $usermanager = $this->get_user_manager();
@@ -335,9 +334,8 @@ SETTING;
 
         $data = $this->get_web_service_data();
 
-        $data[$this->config->get_data_mapping()['status']] = 'active';
         $data[$this->config->get_data_mapping()['username']] = $user->username;
-        $data[$this->config->get_data_mapping()['email']] = 'fromuser@moodle.com';
+        $data[$this->config->get_data_mapping()['email']] = 'notallowed@moodle.com';
 
         $this->expectException(upset_failed_exception::class);
         $this->expectExceptionMessage('tool_userupsert/notallowedemail');
@@ -351,7 +349,6 @@ SETTING;
     public function test_exception_when_taken_email_new_user() {
         $this->resetAfterTest();
         $this->set_test_config_data();
-        set_config('usermatchfield', 'username', 'tool_userupsert');
 
         $user = $this->getDataGenerator()->create_user();
 
@@ -360,7 +357,6 @@ SETTING;
 
         $data = $this->get_web_service_data();
 
-        $data[$this->config->get_data_mapping()['status']] = 'active';
         $data[$this->config->get_data_mapping()['email']] = $user->email;
 
         $this->expectException(upset_failed_exception::class);
@@ -375,7 +371,6 @@ SETTING;
     public function test_exception_when_taken_email_existing_user() {
         $this->resetAfterTest();
         $this->set_test_config_data();
-        set_config('usermatchfield', 'username', 'tool_userupsert');
 
         $user = $this->getDataGenerator()->create_user();
         $existinguser = $this->getDataGenerator()->create_user();
@@ -385,7 +380,6 @@ SETTING;
 
         $data = $this->get_web_service_data();
 
-        $data[$this->config->get_data_mapping()['status']] = 'active';
         $data[$this->config->get_data_mapping()['username']] = $existinguser->username;
         $data[$this->config->get_data_mapping()['email']] = $user->email;
 
@@ -403,7 +397,6 @@ SETTING;
 
         $this->resetAfterTest();
         $this->set_test_config_data();
-        set_config('usermatchfield', 'username', 'tool_userupsert');
         set_config('allowaccountssameemail', true);
 
         $user = $this->getDataGenerator()->create_user();
@@ -413,9 +406,6 @@ SETTING;
         $this->config = new config();
 
         $data = $this->get_web_service_data();
-        $data[$this->config->get_data_mapping()['status']] = 'active';
-        $data[$this->config->get_data_mapping()['auth']] = 'manual';
-        $data[$this->config->get_data_mapping()['username']] = 'testuser';
         unset($data[$this->config->get_data_mapping()['password']]);
         $data[$this->config->get_data_mapping()['email']] = $user->email;
 
@@ -432,7 +422,6 @@ SETTING;
 
         $this->resetAfterTest();
         $this->set_test_config_data();
-        set_config('usermatchfield', 'username', 'tool_userupsert');
         set_config('allowaccountssameemail', true);
 
         $user = $this->getDataGenerator()->create_user();
@@ -445,16 +434,13 @@ SETTING;
 
         $data = $this->get_web_service_data();
 
-        $data[$this->config->get_data_mapping()['status']] = 'active';
         $data[$this->config->get_data_mapping()['username']] = $existinguser->username;
-        $data[$this->config->get_data_mapping()['auth']] = 'manual';
         unset($data[$this->config->get_data_mapping()['password']]);
         $data[$this->config->get_data_mapping()['email']] = $user->email;
 
         $usermanager->upsert_user($data);
         $this->assertSame(2, $DB->count_records('user', ['email' => $user->email]));
     }
-
 
     /**
      * Test username taken for a  new user.
@@ -469,8 +455,6 @@ SETTING;
 
         $data = $this->get_web_service_data();
 
-        $data[$this->config->get_data_mapping()['status']] = 'active';
-        $data[$this->config->get_data_mapping()['email']] = 'test@test.com';
         $data[$this->config->get_data_mapping()['username']] = 'admin';
 
         $this->expectException(upset_failed_exception::class);
@@ -494,7 +478,6 @@ SETTING;
 
         $data = $this->get_web_service_data();
 
-        $data[$this->config->get_data_mapping()['status']] = 'active';
         $data[$this->config->get_data_mapping()['email']] = $existinguser->email;
         $data[$this->config->get_data_mapping()['username']] = 'admin';
 
@@ -510,15 +493,12 @@ SETTING;
     public function test_exception_invalid_auth_new_user() {
         $this->resetAfterTest();
         $this->set_test_config_data();
-        set_config('usermatchfield', 'username', 'tool_userupsert');
 
         $usermanager = $this->get_user_manager();
         $this->config = new config();
 
         $data = $this->get_web_service_data();
 
-        $data[$this->config->get_data_mapping()['status']] = 'active';
-        $data[$this->config->get_data_mapping()['email']] = 'test@test.com';
         $data[$this->config->get_data_mapping()['auth']] = 'random';
 
         $this->expectException(upset_failed_exception::class);
@@ -533,7 +513,6 @@ SETTING;
     public function test_exception_invalid_auth_existing_user() {
         $this->resetAfterTest();
         $this->set_test_config_data();
-        set_config('usermatchfield', 'username', 'tool_userupsert');
 
         $usermanager = $this->get_user_manager();
         $this->config = new config();
@@ -542,9 +521,7 @@ SETTING;
 
         $data = $this->get_web_service_data();
 
-        $data[$this->config->get_data_mapping()['status']] = 'active';
         $data[$this->config->get_data_mapping()['username']] = $existinguser->username;
-        $data[$this->config->get_data_mapping()['email']] = 'test@test.com';
         $data[$this->config->get_data_mapping()['auth']] = 'random';
 
         $this->expectException(upset_failed_exception::class);
@@ -566,10 +543,7 @@ SETTING;
 
         $data = $this->get_web_service_data();
 
-        $data[$this->config->get_data_mapping()['status']] = 'active';
-        $data[$this->config->get_data_mapping()['auth']] = 'manual';
         $data[$this->config->get_data_mapping()['username']] = 'Test';
-        $data[$this->config->get_data_mapping()['email']] = 'test@test.com';
         unset($data[$this->config->get_data_mapping()['password']]);
 
         $this->expectException(upset_failed_exception::class);
@@ -591,8 +565,6 @@ SETTING;
 
         $data = $this->get_web_service_data();
 
-        $data[$this->config->get_data_mapping()['status']] = 'active';
-        $data[$this->config->get_data_mapping()['auth']] = 'manual';
         $data[$this->config->get_data_mapping()['username']] = 'Test';
         $data[$this->config->get_data_mapping()['email']] = $existinguser->email;
         unset($data[$this->config->get_data_mapping()['password']]);
@@ -615,10 +587,6 @@ SETTING;
 
         $data = $this->get_web_service_data();
 
-        $data[$this->config->get_data_mapping()['status']] = 'active';
-        $data[$this->config->get_data_mapping()['auth']] = 'manual';
-        $data[$this->config->get_data_mapping()['username']] = 'test';
-        $data[$this->config->get_data_mapping()['email']] = 'test@test.com';
         $data[$this->config->get_data_mapping()['password']] = 'weak';
 
         $this->expectException(upset_failed_exception::class);
@@ -640,8 +608,6 @@ SETTING;
 
         $data = $this->get_web_service_data();
 
-        $data[$this->config->get_data_mapping()['status']] = 'active';
-        $data[$this->config->get_data_mapping()['auth']] = 'manual';
         $data[$this->config->get_data_mapping()['username']] = $existinguser->username;
         $data[$this->config->get_data_mapping()['email']] = $existinguser->email;
         $data[$this->config->get_data_mapping()['password']] = 'weak';
@@ -658,7 +624,6 @@ SETTING;
         $this->resetAfterTest();
         $this->set_test_config_data();
         $customfield = $this->add_user_profile_field('newfield', 'text', true);
-        set_config('usermatchfield', 'username', 'tool_userupsert');
         set_config('data_map_profile_field_newfield', 'CustomField', 'tool_userupsert');
 
         $user = $this->getDataGenerator()->create_user();
@@ -669,10 +634,6 @@ SETTING;
 
         $data = $this->get_web_service_data();
 
-        $data[$this->config->get_data_mapping()['status']] = 'active';
-        $data[$this->config->get_data_mapping()['auth']] = 'manual';
-        $data[$this->config->get_data_mapping()['username']] = 'test';
-        $data[$this->config->get_data_mapping()['email']] = 'test@test.ru';
         $data[$this->config->get_data_mapping()['profile_field_newfield']] = 'User Field';
         unset($data[$this->config->get_data_mapping()['password']]);
 
@@ -689,7 +650,6 @@ SETTING;
         $this->resetAfterTest();
         $this->set_test_config_data();
         $customfield = $this->add_user_profile_field('newfield', 'text', true);
-        set_config('usermatchfield', 'username', 'tool_userupsert');
         set_config('data_map_profile_field_newfield', 'CustomField', 'tool_userupsert');
 
         $user = $this->getDataGenerator()->create_user();
@@ -703,8 +663,6 @@ SETTING;
 
         $data = $this->get_web_service_data();
 
-        $data[$this->config->get_data_mapping()['status']] = 'active';
-        $data[$this->config->get_data_mapping()['auth']] = 'manual';
         $data[$this->config->get_data_mapping()['username']] = $existinguser->username;
         $data[$this->config->get_data_mapping()['email']] = $existinguser->email;
         $data[$this->config->get_data_mapping()['profile_field_newfield']] = 'User existing Field';
@@ -725,21 +683,16 @@ SETTING;
     public function test_creating_a_user_without_a_password() {
         $this->resetAfterTest();
         $this->set_test_config_data();
-        set_config('usermatchfield', 'username', 'tool_userupsert');
 
         $usermanager = $this->get_user_manager();
         $this->config = new config();
 
         $data = $this->get_web_service_data();
 
-        $data[$this->config->get_data_mapping()['status']] = 'active';
-        $data[$this->config->get_data_mapping()['auth']] = 'manual';
-        $data[$this->config->get_data_mapping()['username']] = 'newuser1';
-        $data[$this->config->get_data_mapping()['email']] = 'newuser1@test.ru';
         unset($data[$this->config->get_data_mapping()['password']]);
 
         $usermanager->upsert_user($data);
-        $user = get_complete_user_data('username', 'newuser1');
+        $user = get_complete_user_data('username', 'test');
         $this->assertTrue(password_verify('', $user->password));
     }
 
@@ -749,30 +702,22 @@ SETTING;
     public function test_updating_a_user_with_a_password() {
         $this->resetAfterTest();
         $this->set_test_config_data();
-        set_config('usermatchfield', 'username', 'tool_userupsert');
 
         $usermanager = $this->get_user_manager();
         $this->config = new config();
 
         $data = $this->get_web_service_data();
 
-        $data[$this->config->get_data_mapping()['status']] = 'active';
-        $data[$this->config->get_data_mapping()['auth']] = 'manual';
-        $data[$this->config->get_data_mapping()['username']] = 'newuser2';
-        $data[$this->config->get_data_mapping()['email']] = 'newuser2@test.ru';
         $data[$this->config->get_data_mapping()['password']] = 'nhy6^YHN';
 
         $usermanager->upsert_user($data);
-        $user = get_complete_user_data('username', 'newuser2');
+        $user = get_complete_user_data('username', 'test');
         $this->assertTrue(password_verify('nhy6^YHN', $user->password));
 
-        $data[$this->config->get_data_mapping()['auth']] = 'manual';
-        $data[$this->config->get_data_mapping()['username']] = 'newuser2';
-        $data[$this->config->get_data_mapping()['email']] = 'newuser2@test.ru';
         $data[$this->config->get_data_mapping()['password']] = 'NHY^6yhn';
 
         $usermanager->upsert_user($data);
-        $user = get_complete_user_data('username', 'newuser2');
+        $user = get_complete_user_data('username', 'test');
         $this->assertTrue(password_verify('NHY^6yhn', $user->password));
     }
 
@@ -783,7 +728,6 @@ SETTING;
         $this->resetAfterTest();
 
         $this->set_test_config_data();
-        set_config('usermatchfield', 'username', 'tool_userupsert');
 
         $usermanager = $this->get_user_manager();
         $this->config = new config();
@@ -791,7 +735,6 @@ SETTING;
         $data = $this->get_web_service_data();
 
         // Active status.
-        $data[$this->config->get_data_mapping()['auth']] = 'manual';
         $data[$this->config->get_data_mapping()['username']] = 'newuser1';
         $data[$this->config->get_data_mapping()['email']] = 'newuser1@test.ru';
         unset($data[$this->config->get_data_mapping()['password']]);
@@ -802,7 +745,6 @@ SETTING;
         $this->assertEquals(0, $user->suspended);
 
         // Suspended status.
-        $data[$this->config->get_data_mapping()['auth']] = 'manual';
         $data[$this->config->get_data_mapping()['username']] = 'newuser2';
         $data[$this->config->get_data_mapping()['email']] = 'newuser2@test.ru';
         unset($data[$this->config->get_data_mapping()['password']]);
@@ -813,7 +755,6 @@ SETTING;
         $this->assertEquals(1, $user->suspended);
 
         // Deleted status.
-        $data[$this->config->get_data_mapping()['auth']] = 'manual';
         $data[$this->config->get_data_mapping()['username']] = 'newuser3';
         $data[$this->config->get_data_mapping()['email']] = 'newuser3@test.ru';
         unset($data[$this->config->get_data_mapping()['password']]);
@@ -831,7 +772,6 @@ SETTING;
         $this->resetAfterTest();
 
         $this->set_test_config_data();
-        set_config('usermatchfield', 'username', 'tool_userupsert');
 
         $usermanager = $this->get_user_manager();
         $this->config = new config();
@@ -843,11 +783,9 @@ SETTING;
         $data = $this->get_web_service_data();
 
         // Active status.
-        $data[$this->config->get_data_mapping()['auth']] = 'manual';
         $data[$this->config->get_data_mapping()['username']] = $existinguser->username;
         $data[$this->config->get_data_mapping()['email']] = $existinguser->email;
         unset($data[$this->config->get_data_mapping()['password']]);
-        $data[$this->config->get_data_mapping()['status']] = 'active';
 
         $usermanager->upsert_user($data);
         $user = get_complete_user_data('username', $existinguser->username);
@@ -875,7 +813,6 @@ SETTING;
         $this->resetAfterTest();
 
         $this->set_test_config_data();
-        set_config('usermatchfield', 'username', 'tool_userupsert');
         set_config('defaultauth', 'nologin', 'tool_userupsert');
 
         $usermanager = $this->get_user_manager();
@@ -891,7 +828,6 @@ SETTING;
         // Existing user auth shouldn't be set to default.
         $data[$this->config->get_data_mapping()['username']] = $existinguser->username;
         $data[$this->config->get_data_mapping()['email']] = $existinguser->email;
-        $data[$this->config->get_data_mapping()['status']] = 'active';
         unset($data[$this->config->get_data_mapping()['password']]);
         unset($data[$this->config->get_data_mapping()['auth']]);
 
