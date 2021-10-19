@@ -127,6 +127,11 @@ class user_extractor_test extends advanced_testcase {
         profile_save_data((object)['id' => $user2->id, 'profile_field_' . $field1->shortname => 'User 2 Field 1']);
         profile_save_data((object)['id' => $user2->id, 'profile_field_' . $field2->shortname => 'User 2 Field 2']);
 
+        $user3 = $this->getDataGenerator()->create_user();
+        profile_save_data((object)['id' => $user3->id, 'profile_field_' . $field1->shortname => 'User 3 Field 1']);
+        profile_save_data((object)['id' => $user3->id, 'profile_field_' . $field2->shortname => 'User 3 Field 2']);
+        delete_user($user3);
+
         // Should find users.
         $actual = user_extractor::get_user('profile_field_field1', 'User 1 Field 1');
         $this->assertNotNull($actual);
@@ -148,12 +153,18 @@ class user_extractor_test extends advanced_testcase {
         $actual = user_extractor::get_user('profile_field_field1', 'User 3 Field 1');
         $this->assertNull($actual);
 
-        $actual = user_extractor::get_user('profile_field_field3', 'User 3 Field 1');
+        $actual = user_extractor::get_user('profile_field_field3', 'User 3 Field 2');
+        $this->assertNull($actual);
+
+        $actual = user_extractor::get_user('profile_field_field1', 'User 4 Field 1');
+        $this->assertNull($actual);
+
+        $actual = user_extractor::get_user('profile_field_field3', 'User 4 Field 2');
         $this->assertNull($actual);
     }
 
     /**
-     * Test we can extract users using custom profile fields when found multiple users.
+     * Test we can not extract users using custom profile fields when found multiple users.
      */
     public function test_get_user_by_custom_profile_field_when_multiple_users_found() {
         $this->resetAfterTest();
@@ -172,6 +183,40 @@ class user_extractor_test extends advanced_testcase {
 
         $this->expectException(more_than_one_user_found_exception::class);
         user_extractor::get_user('profile_field_field1', 'User 1 Field 1');
+    }
+
+    /**
+     * Test is_email_taken.
+     */
+    public function test_is_email_taken() {
+        $this->resetAfterTest();
+
+        $user = $this->getDataGenerator()->create_user();
+
+        $this->assertFalse(user_extractor::is_email_taken('random@test.com'));
+        $this->assertFalse(user_extractor::is_email_taken('random@test.com', $user->id));
+        $this->assertFalse(user_extractor::is_email_taken($user->email, $user->id));
+        $this->assertTrue(user_extractor::is_email_taken($user->email));
+
+        delete_user($user);
+        $this->assertFalse(user_extractor::is_email_taken($user->email));
+    }
+
+    /**
+     * Test is_username_taken.
+     */
+    public function test_is_username_taken() {
+        $this->resetAfterTest();
+
+        $user = $this->getDataGenerator()->create_user();
+
+        $this->assertFalse(user_extractor::is_username_taken('random'));
+        $this->assertFalse(user_extractor::is_username_taken('random', $user->id));
+        $this->assertFalse(user_extractor::is_username_taken($user->username, $user->id));
+        $this->assertTrue(user_extractor::is_username_taken($user->username));
+
+        delete_user($user);
+        $this->assertFalse(user_extractor::is_username_taken($user->username));
     }
 
 }

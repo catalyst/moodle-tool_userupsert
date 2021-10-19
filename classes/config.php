@@ -43,6 +43,11 @@ defined('MOODLE_INTERNAL') || die();
 class config {
 
     /**
+     * A list of base mandatory fields.
+     */
+    const BASE_MANDATORY_FIELDS = ['username', 'lastname', 'firstname', 'email', 'status'];
+
+    /**
      * A list of configured web service field and their descriptions.
      * @var array
      */
@@ -65,7 +70,6 @@ class config {
      * @var array
      */
     private $defaultauth = 'manual';
-
 
     /**
      * Constructor.
@@ -123,7 +127,7 @@ class config {
      * @return string[]
      */
     public function get_mandatory_fields(): array {
-        $fields = ['username', 'lastname', 'firstname', 'email', 'status'];
+        $fields = self::BASE_MANDATORY_FIELDS;
 
         if (!in_array($this->usermatchfield, $fields)) {
             $fields[] = $this->usermatchfield;
