@@ -4,7 +4,7 @@
 
 An admin tool provides a web service for inserting/updating/deleting users using just one API endpoint.
 
-## Why is this plugin exists ##
+## Why does this plugin exist? ##
 
 Moodle core provides a comprehensive list of webservices to create, update or delete users (core_user_create_users, 
 core_user_update_users and core_user_delete_users). However, in those services you must use an internal user ID 
