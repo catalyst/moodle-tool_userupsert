@@ -182,9 +182,15 @@ class upsert_test extends advanced_testcase {
         $data = $this->get_web_service_data();
         $data[$this->config->get_data_mapping()['email']] = $user->email;
 
+        $sink = $this->redirectEvents();
+
         $response = external_api::call_external_function('tool_userupsert_upsert_users', [
             'users' => [$data, $data]
         ]);
+
+        $events = $sink->get_events();
+        $sink->close();
+        $this->assertCount(2, $events);
 
         $this->verify_success($response);
         $this->assertCount(2, $response['data']);
@@ -215,6 +221,8 @@ class upsert_test extends advanced_testcase {
         $data = $this->get_web_service_data();
         $data[$this->config->get_data_mapping()['username']] = '';
 
+        $sink = $this->redirectEvents();
+
         $response = external_api::call_external_function('tool_userupsert_upsert_users', [
             'users' => [$data]
         ]);
@@ -229,6 +237,23 @@ class upsert_test extends advanced_testcase {
         $this->assertSame(
             'Missing mandatory field ' . $this->config->get_data_mapping()['username'],
             $response['data'][0]['error']
+        );
+
+        $events = $sink->get_events();
+        $sink->close();
+        $this->assertCount(1, $events);
+        $event = reset($events);
+        $this->assertArrayHasKey('error', $event->get_data()['other']);
+        $this->assertArrayHasKey('itemid', $event->get_data()['other']);
+
+        $this->assertSame(
+            "Failed upserting user: 'not set', error 'Missing mandatory field {$this->config->get_data_mapping()['username']}'",
+            $event->get_description()
+        );
+        $this->assertSame('not set', $event->get_data()['other']['itemid']);
+        $this->assertSame(
+            'Missing mandatory field ' . $this->config->get_data_mapping()['username'],
+            $event->get_data()['other']['error']
         );
     }
 

@@ -58,3 +58,4 @@ $string['error:updatingfields'] = 'Error updating profile fields';
 $string['error:invalidauth'] = 'Invalid auth method: {$a}';
 $string['error:usernametaken'] = 'Username is already taken: {$a}';
 $string['error:emailtaken'] = 'Email is already taken: {$a}';
+$string['event:upsertfailed'] = 'Upsert failed';

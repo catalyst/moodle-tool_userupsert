@@ -26,6 +26,7 @@ namespace tool_userupsert\external;
 
 defined('MOODLE_INTERNAL') || die();
 
+use tool_userupsert\event\upsert_failed;
 use tool_userupsert\config;
 use external_api;
 use external_function_parameters;
@@ -80,17 +81,20 @@ class upsert extends external_api {
             try {
                 $usermanager->upsert_user($user);
             } catch (\Exception $exception) {
-                $message = $exception->getMessage();
+
                 if (!empty($user[$config->get_data_mapping()[$config->get_user_match_field()]])) {
                     $itemid = $user[$config->get_data_mapping()[$config->get_user_match_field()]];
                 } else {
                     $itemid = 'not set';
                 }
 
-                $warnings[] = [
+                $warning = [
                     'itemid' => $itemid,
-                    'error' => $message,
+                    'error' => $exception->getMessage(),
                 ];
+
+                $warnings[] = $warning;
+                upsert_failed::create(['other' => $warning])->trigger();
             }
         }
 
