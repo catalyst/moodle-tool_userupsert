@@ -32,7 +32,7 @@ use external_function_parameters;
 use external_single_structure;
 use external_multiple_structure;
 use external_value;
-use external_warnings;
+use tool_userupsert\user_manager;
 
 /**
  * Web Service functions.
@@ -68,15 +68,31 @@ class upsert extends external_api {
      * @return array
      */
     public static function upsert_users(array $users): array {
+        $params = self::validate_parameters(self::upsert_users_parameters(), ['users' => $users]);
         require_capability('tool/userupsert:upsert', \context_system::instance());
 
         $warnings = [];
-        $warnings[] = [
-            'item' => 'user',
-            'itemid' => '',
-            'warningcode' => '',
-            'message' => '',
-        ];
+
+        $config = new config();
+        $usermanager = new user_manager($config);
+
+        foreach ($params['users'] as $user) {
+            try {
+                $usermanager->upsert_user($user);
+            } catch (\Exception $exception) {
+                $message = $exception->getMessage();
+                if (!empty($user[$config->get_data_mapping()[$config->get_user_match_field()]])) {
+                    $itemid = $user[$config->get_data_mapping()[$config->get_user_match_field()]];
+                } else {
+                    $itemid = 'not set';
+                }
+
+                $warnings[] = [
+                    'itemid' => $itemid,
+                    'error' => $message,
+                ];
+            }
+        }
 
         return $warnings;
     }
@@ -84,10 +100,17 @@ class upsert extends external_api {
     /**
      * Return values for upsert_user external function.
      *
-     * @return external_warnings
+     * @return external_multiple_structure
      */
-    public static function upsert_users_returns(): external_warnings {
-        return new external_warnings('Item is always \'user\'');
+    public static function upsert_users_returns(): external_multiple_structure {
+        return new external_multiple_structure(
+            new external_single_structure(
+                [
+                    'itemid' => new external_value(PARAM_RAW, 'User matching identificator', VALUE_OPTIONAL),
+                    'error' => new external_value(PARAM_RAW, 'Message to explain the error', VALUE_OPTIONAL)
+                ]
+            )
+        );
     }
 
 }
