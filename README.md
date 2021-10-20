@@ -2,9 +2,29 @@
 
 # Upsert users #
 
-TODO Describe the plugin shortly here.
+An admin tool provides a web service for inserting/updating/deleting users using just one API endpoint.
 
-TODO Provide more detailed description here.
+## Why is this plugin exists ##
+
+Moodle core provides a comprehensive list of webservices to create, update or delete users (core_user_create_users, 
+core_user_update_users and core_user_delete_users). However, in those services you must use an internal user ID 
+to identify users. In some systems with configured SSO integration, an identity provider doesn't know about internal 
+user ID and find users using different fields (e.g. username, idnumber or unique custom profile field). In this case,
+it's not possible to use core webservices. 
+
+## Usage ##
+
+This plugin provides a single API endpoint (tool_userupsert_upsert_users) for managing users. You can select a field 
+that will be used for matching users, including unique custom profile fields. Also, you can customise a list of required
+fields for your web service. 
+
+You need to configure your Moodle for using Web services. See documentation https://docs.moodle.org/311/en/Web_services
+
+After installing the plugin, navigate to Site administration > Plugins > Admin tools > User upsert and configure the 
+plugin.
+
+Then, navigate to Site administration > Plugins > Web services > API Documentation and check WS documentation for 
+tool_userupsert_upsert_users service as it will depend on your configuration.
 
 ## Installing via uploaded ZIP file ##
 
