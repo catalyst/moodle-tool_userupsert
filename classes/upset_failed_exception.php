@@ -38,10 +38,11 @@ class upset_failed_exception extends \moodle_exception {
      * Constructor
      *
      * @param string $errorcode Error code.
+     * @param string|null $a Extra words and phrases that might be required in the error string.
      * @param string|null $debuginfo Additional debug information.
      */
-    public function __construct(string $errorcode, ?string $debuginfo = null) {
-        parent::__construct($errorcode, 'tool_userupsert', '', '', $debuginfo);
+    public function __construct(string $errorcode, ?string $a=null, ?string $debuginfo = null) {
+        parent::__construct($errorcode, 'tool_userupsert', '', $a, $debuginfo);
     }
 
 }
