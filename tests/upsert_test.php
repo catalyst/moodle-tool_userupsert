@@ -28,6 +28,8 @@ use advanced_testcase;
 use external_api;
 use tool_userupsert\config;
 use context_system;
+use tool_userupsert\event\upsert_failed;
+use tool_userupsert\event\upsert_succeeded;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -318,9 +320,38 @@ class upsert_test extends advanced_testcase {
         $data[$this->config->get_data_mapping()['status']] = 'deleted';
         $feed['users'][] = $data;
 
+        $sink = $this->redirectEvents();
+
         $response = external_api::call_external_function('tool_userupsert_upsert_users', $feed);
         $this->verify_success($response);
         $this->assertCount(1, $response['data']);
+
+        $events = $sink->get_events();
+        $sink->close();
+
+        $succeededevents = array_filter($events, function ($event) {
+            return $event instanceof upsert_succeeded;
+        });
+
+        $failedevents = array_filter($events, function ($event) {
+            return $event instanceof upsert_failed;
+        });
+
+        $this->assertCount(4, $succeededevents);
+        $this->assertCount(1, $failedevents);
+
+        $succeeded = [];
+        foreach ($succeededevents as $succeededevent) {
+            $this->assertArrayHasKey('itemid', $succeededevent->get_data()['other']);
+            $succeeded[] = $succeededevent->get_data()['other']['itemid'];
+        }
+
+        $failed = [];
+        foreach ($failedevents as $failedevent) {
+            $this->assertArrayHasKey('error', $failedevent->get_data()['other']);
+            $this->assertArrayHasKey('itemid', $failedevent->get_data()['other']);
+            $failed[] = $failedevent->get_data()['other']['itemid'];
+        }
 
         $this->assertArrayHasKey('itemid', $response['data'][0]);
         $this->assertArrayHasKey('error', $response['data'][0]);
@@ -333,26 +364,31 @@ class upsert_test extends advanced_testcase {
         $userexisting = get_complete_user_data('username', $user->username);
         $userdeleted = get_complete_user_data('username', $usertodelete->username);
 
+        $this->assertTrue(in_array($user1->username, $succeeded));
         $this->assertSame('Test', $user1->firstname);
         $this->assertSame('Test', $user1->lastname);
         $this->assertSame('user1@email.ru', $user1->email);
         $this->assertSame('manual', $user1->auth);
         $this->assertEquals(0, $user1->suspended);
 
+        $this->assertTrue(in_array($user2->username, $succeeded));
         $this->assertSame('Test', $user2->firstname);
         $this->assertSame('Test', $user2->lastname);
         $this->assertSame('user2@email.ru', $user2->email);
         $this->assertSame('nologin', $user2->auth);
         $this->assertEquals(0, $user2->suspended);
 
+        $this->assertTrue(in_array('user3', $failed));
         $this->assertFalse($user3);
 
+        $this->assertTrue(in_array($userexisting->username, $succeeded));
         $this->assertSame('Test', $userexisting->firstname);
         $this->assertSame('Test', $userexisting->lastname);
         $this->assertSame('user4@email.ru', $userexisting->email);
         $this->assertSame('email', $userexisting->auth);
         $this->assertEquals(1, $userexisting->suspended);
 
+        $this->assertTrue(in_array($usertodelete->username, $succeeded));
         $this->assertFalse($userdeleted);
     }
 

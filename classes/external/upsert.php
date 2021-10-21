@@ -33,6 +33,7 @@ use external_function_parameters;
 use external_single_structure;
 use external_multiple_structure;
 use external_value;
+use tool_userupsert\event\upsert_succeeded;
 use tool_userupsert\user_manager;
 
 /**
@@ -78,16 +79,21 @@ class upsert extends external_api {
         $usermanager = new user_manager($config);
 
         foreach ($params['users'] as $user) {
+
+            if (!empty($user[$config->get_data_mapping()[$config->get_user_match_field()]])) {
+                $itemid = $user[$config->get_data_mapping()[$config->get_user_match_field()]];
+            } else {
+                $itemid = 'not set';
+            }
+
             try {
                 $usermanager->upsert_user($user);
+                upsert_succeeded::create([
+                    'other' => [
+                        'itemid' => $itemid,
+                    ]
+                ])->trigger();
             } catch (\Exception $exception) {
-
-                if (!empty($user[$config->get_data_mapping()[$config->get_user_match_field()]])) {
-                    $itemid = $user[$config->get_data_mapping()[$config->get_user_match_field()]];
-                } else {
-                    $itemid = 'not set';
-                }
-
                 $warning = [
                     'itemid' => $itemid,
                     'error' => $exception->getMessage(),
