@@ -66,4 +66,53 @@ trait test_helper_trait {
         return $data;
     }
 
+    /**
+     * Set test config data.
+     */
+    protected function set_test_config_data() {
+        $settings = <<<SETTING
+UserName| Username policy is defined in Moodle security config
+FirstName | The first name(s) of the user
+LastName | The family name of the user
+Email | A valid and unique email address
+Auth | Auth plugins include manual, ldap, etc. Default is "manual"
+Password | Plain text password consisting of any characters
+Status | User status. Either active, deleted or suspended
+CustomField | User custom field
+SETTING;
+
+        set_config('webservicefields', $settings, 'tool_userupsert');
+        set_config('data_map_username', 'UserName', 'tool_userupsert');
+        set_config('data_map_firstname', 'FirstName', 'tool_userupsert');
+        set_config('data_map_lastname', 'LastName', 'tool_userupsert');
+        set_config('data_map_email', 'Email', 'tool_userupsert');
+        set_config('data_map_auth', 'Auth', 'tool_userupsert');
+        set_config('data_map_password', 'Password', 'tool_userupsert');
+        set_config('data_map_status', 'Status', 'tool_userupsert');
+        set_config('data_map_profile_field_newfield', 'CustomField', 'tool_userupsert');
+
+        set_config('usermatchfield', 'username', 'tool_userupsert');
+    }
+
+    /**
+     * A helper method to get a dummy web service data.
+     *
+     * @return array
+     */
+    protected function get_web_service_data(): array {
+        $data = [];
+
+        foreach ($this->config->get_data_mapping() as $wsfield) {
+            $data[$wsfield] = 'Test';
+        }
+
+        $data[$this->config->get_data_mapping()['username']] = 'test';
+        $data[$this->config->get_data_mapping()['email']] = 'test@test.com';
+        $data[$this->config->get_data_mapping()['status']] = 'active';
+        $data[$this->config->get_data_mapping()['password']] = 'nhy6^YHN';
+        $data[$this->config->get_data_mapping()['auth']] = 'manual';
+
+        return $data;
+    }
+
 }

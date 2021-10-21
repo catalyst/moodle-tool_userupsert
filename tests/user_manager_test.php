@@ -52,59 +52,12 @@ class user_manager_test extends advanced_testcase {
     protected $config;
 
     /**
-     * Set test config data.
-     */
-    protected function set_test_config_data() {
-        $settings = <<<SETTING
-UserName| Username policy is defined in Moodle security config
-FirstName | The first name(s) of the user
-LastName | The family name of the user
-Email | A valid and unique email address
-Auth | Auth plugins include manual, ldap, etc. Default is "manual"
-Password | Plain text password consisting of any characters
-Status | User status. Either active, deleted or suspended
-CustomField | User custom field
-SETTING;
-
-        set_config('webservicefields', $settings, 'tool_userupsert');
-        set_config('data_map_username', 'UserName', 'tool_userupsert');
-        set_config('data_map_firstname', 'FirstName', 'tool_userupsert');
-        set_config('data_map_lastname', 'LastName', 'tool_userupsert');
-        set_config('data_map_email', 'Email', 'tool_userupsert');
-        set_config('data_map_auth', 'Auth', 'tool_userupsert');
-        set_config('data_map_password', 'Password', 'tool_userupsert');
-        set_config('data_map_status', 'Status', 'tool_userupsert');
-
-        set_config('usermatchfield', 'username', 'tool_userupsert');
-    }
-
-    /**
      * A helper method to build a user manager.
      *
      * @return \tool_userupsert\user_manager
      */
     protected function get_user_manager(): user_manager {
         return new user_manager(new config());
-    }
-
-    /**
-     * A helper method to get a dummy web service data.
-     *
-     * @return array
-     */
-    protected function get_web_service_data(): array {
-        $data = [];
-        foreach ($this->config->get_data_mapping() as $wsfield) {
-            $data[$wsfield] = 'Test';
-        }
-
-        $data[$this->config->get_data_mapping()['username']] = 'test';
-        $data[$this->config->get_data_mapping()['email']] = 'test@test.com';
-        $data[$this->config->get_data_mapping()['status']] = 'active';
-        $data[$this->config->get_data_mapping()['password']] = 'nhy6^YHN';
-        $data[$this->config->get_data_mapping()['auth']] = 'manual';
-
-        return $data;
     }
 
     /**
@@ -153,7 +106,7 @@ SETTING;
 
         $usermanager = $this->get_user_manager();
 
-        $this->expectException(missing_field_exception::class);
+        $this->expectException(upset_failed_exception::class);
         $this->expectExceptionMessage('Missing mandatory field ' . $fieldname);
 
         $usermanager->upsert_user($data);
@@ -179,7 +132,7 @@ SETTING;
 
         $usermanager = $this->get_user_manager();
 
-        $this->expectException(missing_field_exception::class);
+        $this->expectException(upset_failed_exception::class);
         $this->expectExceptionMessage('Missing mandatory field CustomField');
 
         $usermanager->upsert_user($data);
@@ -201,7 +154,7 @@ SETTING;
         $data[$this->config->get_data_mapping()['status']] = 'random';
 
         $this->expectException(upset_failed_exception::class);
-        $this->expectExceptionMessage('tool_userupsert/invalidstatus');
+        $this->expectExceptionMessage('Invalid status: random');
         $usermanager->upsert_user($data);
     }
 
@@ -272,7 +225,7 @@ SETTING;
         $data[$this->config->get_data_mapping()['email']] = 'broken@email';
 
         $this->expectException(upset_failed_exception::class);
-        $this->expectExceptionMessage('tool_userupsert/invalidemail');
+        $this->expectExceptionMessage('Invalid email: broken@email');
 
         $usermanager->upsert_user($data);
     }
@@ -294,7 +247,7 @@ SETTING;
         $data[$this->config->get_data_mapping()['email']] = 'broken@email';
 
         $this->expectException(upset_failed_exception::class);
-        $this->expectExceptionMessage('tool_userupsert/invalidemail');
+        $this->expectExceptionMessage('Invalid email: broken@email');
 
         $usermanager->upsert_user($data);
     }
@@ -315,7 +268,9 @@ SETTING;
         $data[$this->config->get_data_mapping()['email']] = 'notallowed@moodle.com';
 
         $this->expectException(upset_failed_exception::class);
-        $this->expectExceptionMessage('tool_userupsert/notallowedemail');
+        $this->expectExceptionMessage(
+            'Email is not allowed: notallowed@moodle.com (This email is not one of those that are allowed (example.com test.com))'
+        );
 
         $usermanager->upsert_user($data);
     }
@@ -338,7 +293,9 @@ SETTING;
         $data[$this->config->get_data_mapping()['email']] = 'notallowed@moodle.com';
 
         $this->expectException(upset_failed_exception::class);
-        $this->expectExceptionMessage('tool_userupsert/notallowedemail');
+        $this->expectExceptionMessage(
+            'Email is not allowed: notallowed@moodle.com (This email is not one of those that are allowed (example.com test.com))'
+        );
 
         $usermanager->upsert_user($data);
     }
@@ -360,7 +317,7 @@ SETTING;
         $data[$this->config->get_data_mapping()['email']] = $user->email;
 
         $this->expectException(upset_failed_exception::class);
-        $this->expectExceptionMessage('tool_userupsert/emailtaken');
+        $this->expectExceptionMessage('Email is already taken: ' . $user->email);
 
         $usermanager->upsert_user($data);
     }
@@ -384,7 +341,7 @@ SETTING;
         $data[$this->config->get_data_mapping()['email']] = $user->email;
 
         $this->expectException(upset_failed_exception::class);
-        $this->expectExceptionMessage('tool_userupsert/emailtaken');
+        $this->expectExceptionMessage('Email is already taken: ' . $user->email);
 
         $usermanager->upsert_user($data);
     }
@@ -458,7 +415,7 @@ SETTING;
         $data[$this->config->get_data_mapping()['username']] = 'admin';
 
         $this->expectException(upset_failed_exception::class);
-        $this->expectExceptionMessage('tool_userupsert/usernametaken');
+        $this->expectExceptionMessage('Username is already taken: admin');
 
         $usermanager->upsert_user($data);
     }
@@ -482,7 +439,7 @@ SETTING;
         $data[$this->config->get_data_mapping()['username']] = 'admin';
 
         $this->expectException(upset_failed_exception::class);
-        $this->expectExceptionMessage('tool_userupsert/usernametaken');
+        $this->expectExceptionMessage('Username is already taken: admin');
 
         $usermanager->upsert_user($data);
     }
@@ -502,7 +459,7 @@ SETTING;
         $data[$this->config->get_data_mapping()['auth']] = 'random';
 
         $this->expectException(upset_failed_exception::class);
-        $this->expectExceptionMessage('tool_userupsert/invalidauth');
+        $this->expectExceptionMessage('Invalid auth method: random');
 
         $usermanager->upsert_user($data);
     }
@@ -525,7 +482,7 @@ SETTING;
         $data[$this->config->get_data_mapping()['auth']] = 'random';
 
         $this->expectException(upset_failed_exception::class);
-        $this->expectExceptionMessage('tool_userupsert/invalidauth');
+        $this->expectExceptionMessage('Invalid auth method: random');
 
         $usermanager->upsert_user($data);
     }
@@ -547,7 +504,7 @@ SETTING;
         unset($data[$this->config->get_data_mapping()['password']]);
 
         $this->expectException(upset_failed_exception::class);
-        $this->expectExceptionMessage('tool_userupsert/errorupdatingfields (The username must be in lower case)');
+        $this->expectExceptionMessage('Error updating profile fields (The username must be in lower case)');
         $usermanager->upsert_user($data);
     }
 
@@ -570,7 +527,7 @@ SETTING;
         unset($data[$this->config->get_data_mapping()['password']]);
 
         $this->expectException(upset_failed_exception::class);
-        $this->expectExceptionMessage('tool_userupsert/errorupdatingfields (The username must be in lower case)');
+        $this->expectExceptionMessage('Error updating profile fields (The username must be in lower case)');
         $usermanager->upsert_user($data);
     }
 
@@ -590,7 +547,7 @@ SETTING;
         $data[$this->config->get_data_mapping()['password']] = 'weak';
 
         $this->expectException(upset_failed_exception::class);
-        $this->expectExceptionMessage('tool_userupsert/errorupdatingfields (error/<div>Passwords must be at least 8 character');
+        $this->expectExceptionMessage('Error updating profile fields (error/<div>Passwords must be at least 8 character');
         $usermanager->upsert_user($data);
     }
 
@@ -613,7 +570,7 @@ SETTING;
         $data[$this->config->get_data_mapping()['password']] = 'weak';
 
         $this->expectException(upset_failed_exception::class);
-        $this->expectExceptionMessage('tool_userupsert/errorupdatingfields (error/<div>Passwords must be at least 8 character');
+        $this->expectExceptionMessage('Error updating profile fields (error/<div>Passwords must be at least 8 character');
         $usermanager->upsert_user($data);
     }
 
@@ -638,7 +595,7 @@ SETTING;
         unset($data[$this->config->get_data_mapping()['password']]);
 
         $this->expectException(upset_failed_exception::class);
-        $this->expectExceptionMessage('tool_userupsert/errorupdatingfields (Error setting custom fields (profile_field_newfield: This value has already been used.))');
+        $this->expectExceptionMessage('Error updating profile fields (Error setting custom field data (profile_field_newfield: This value has already been used.))');
 
         $usermanager->upsert_user($data);
     }
@@ -673,7 +630,7 @@ SETTING;
         $data[$this->config->get_data_mapping()['profile_field_newfield']] = 'User 1 Field 1';
 
         $this->expectException(upset_failed_exception::class);
-        $this->expectExceptionMessage('tool_userupsert/errorupdatingfields (Error setting custom fields (profile_field_newfield: This value has already been used.))');
+        $this->expectExceptionMessage('Error updating profile fields (Error setting custom field data (profile_field_newfield: This value has already been used.))');
         $usermanager->upsert_user($data);
     }
 

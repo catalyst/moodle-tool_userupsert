@@ -25,7 +25,7 @@
 defined('MOODLE_INTERNAL') || die();
 
 $plugin->component = 'tool_userupsert';
-$plugin->version = 2021100501;
-$plugin->release = '2021100501';
+$plugin->version = 2021100503;
+$plugin->release = '2021100503';
 $plugin->requires = 2020061500;
 $plugin->maturity = MATURITY_STABLE;

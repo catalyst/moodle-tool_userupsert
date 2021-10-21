@@ -135,7 +135,7 @@ class user_manager {
         foreach ($this->config->get_mandatory_fields() as $field) {
             $fieldname = $this->config->get_data_mapping()[$field];
             if (empty($data[$fieldname])) {
-                throw new missing_field_exception($this->config->get_data_mapping()[$field]);
+                throw new upset_failed_exception('error:missingfield', $this->config->get_data_mapping()[$field]);
             }
         }
 
@@ -163,12 +163,12 @@ class user_manager {
             $this->validate_email($email);
 
             if (empty($CFG->allowaccountssameemail) && user_extractor::is_email_taken($email, $userid)) {
-                throw new upset_failed_exception('emailtaken');
+                throw new upset_failed_exception('error:emailtaken', $email);
             }
 
             $username = $data[$this->usernamefield];
             if (user_extractor::is_username_taken($username, $userid)) {
-                throw new upset_failed_exception('usernametaken');
+                throw new upset_failed_exception('error:usernametaken', $username);
             }
 
             $auth = $this->config->get_default_auth();
@@ -177,7 +177,7 @@ class user_manager {
             }
 
             if (!exists_auth_plugin($auth)) {
-                throw new upset_failed_exception('invalidauth');
+                throw new upset_failed_exception('error:invalidauth', $auth);
             }
 
             try {
@@ -194,7 +194,7 @@ class user_manager {
                     }
                 }
             } catch (\Exception $exception) {
-                throw new upset_failed_exception('errorcreating', $exception->getMessage());
+                throw new upset_failed_exception('error:creating', null, $exception->getMessage());
             }
 
             $user->suspended = 0;
@@ -205,7 +205,7 @@ class user_manager {
             try {
                 $this->update_user_profile($user, $data, $updatepasword);
             } catch (\Exception $exception) {
-                throw new upset_failed_exception('errorupdatingfields', $exception->getMessage());
+                throw new upset_failed_exception('error:updatingfields', null, $exception->getMessage());
             }
         }
     }
@@ -217,7 +217,7 @@ class user_manager {
      */
     private function validate_status(string $status) {
         if (!in_array($status, self::VALID_USER_STATUSES)) {
-            throw new upset_failed_exception('invalidstatus');
+            throw new upset_failed_exception('error:invalidstatus', $status);
         }
 
     }
@@ -229,11 +229,11 @@ class user_manager {
      */
     private function validate_email(string $email) {
         if (!validate_email($email)) {
-            throw new upset_failed_exception('invalidemail');
+            throw new upset_failed_exception('error:invalidemail', $email);
         }
 
         if ($error = email_is_not_allowed($email)) {
-            throw new upset_failed_exception('notallowedemail', $error);
+            throw new upset_failed_exception('error:notallowedemail', $email, $error);
         }
 
     }
@@ -247,7 +247,7 @@ class user_manager {
         try {
             delete_user($user);
         } catch (\Exception $exception) {
-            throw new upset_failed_exception('errordeleting', $exception->getMessage());
+            throw new upset_failed_exception('error:deleting', null, $exception->getMessage());
         }
     }
 
@@ -282,7 +282,7 @@ class user_manager {
                     return sprintf("%s: %s", $k, $v);
                 }, $errors, array_keys($errors)
             ));
-            throw new upset_failed_exception('error:customfield', $debugginginfo);
+            throw new upset_failed_exception('error:customfield', null, $debugginginfo);
         }
 
         profile_save_data($user);
