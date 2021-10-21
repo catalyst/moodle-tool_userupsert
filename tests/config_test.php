@@ -147,7 +147,12 @@ SETTING;
         $this->assertFalse($config->is_ready());
 
         // Configure WS fields.
-        set_config('webservicefields', 'field1 | Description 1', 'tool_userupsert');
+        $testsetting = <<<SETTING
+field1| Description 1
+field2 |Description 2
+SETTING;
+
+        set_config('webservicefields', $testsetting, 'tool_userupsert');
         $config = new config();
         $this->assertFalse($config->is_ready());
 
@@ -162,6 +167,11 @@ SETTING;
         set_config('data_map_firstname', 'field1', 'tool_userupsert');
         set_config('data_map_email', 'field1', 'tool_userupsert');
         set_config('data_map_status', 'field1', 'tool_userupsert');
+        $config = new config();
+        $this->assertFalse($config->is_ready());
+
+        // Map all webservice fields.
+        set_config('data_map_password', 'field2', 'tool_userupsert');
         $config = new config();
         $this->assertTrue($config->is_ready());
 

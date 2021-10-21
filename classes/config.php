@@ -184,6 +184,10 @@ class config {
             }
         }
 
+        if (!$this->all_webservice_fields_mapped()) {
+            return false;
+        }
+
         return true;
     }
 
@@ -202,10 +206,16 @@ class config {
     public function display_data_mapping_settings(admin_settingpage $settings) {
         global $OUTPUT;
 
+        $mappingerror = '';
+
+        if (!$this->all_webservice_fields_mapped()) {
+            $mappingerror = $OUTPUT->notification(get_string('mappingerror', 'tool_userupsert'));
+        }
+
         $settings->add(new admin_setting_heading(
             'tool_userupsert/data_mapping',
             new lang_string('auth_data_mapping', 'auth'),
-            get_string('datamapping', 'tool_userupsert')
+            get_string('datamapping', 'tool_userupsert') . $mappingerror
         ));
 
         foreach (profile_fields::get_profile_fields() as $field => $description) {
@@ -223,10 +233,10 @@ class config {
                 $settings->add(new admin_setting_heading('tool_userupsert/field_not_mapped_'.sha1($field), '',
                     get_string('cannotmapfield', 'auth', $a)));
             } else {
-                $error = '';
+                $mappingerror = '';
 
                 if ($this->is_missing_mapping($field)) {
-                    $error = $OUTPUT->notification(get_string('mappingerror', 'tool_userupsert'));
+                    $mappingerror = $OUTPUT->notification(get_string('mappingfielderror', 'tool_userupsert'));
                 }
 
                 $choices = ['' => get_string('none')];
@@ -236,7 +246,7 @@ class config {
 
                 // We are mapping to a remote field here.
                 $settings->add(new admin_setting_configselect("tool_userupsert/data_map_{$field}",
-                    get_string('auth_fieldmapping', 'auth', $description), $error, '', $choices));
+                    get_string('auth_fieldmapping', 'auth', $description), $mappingerror, '', $choices));
             }
         }
     }
@@ -257,6 +267,20 @@ class config {
         }
 
         return false;
+    }
+
+    /**
+     * Check if all WS fields are mapped.
+     * @return bool
+     */
+    private function all_webservice_fields_mapped(): bool {
+        foreach ($this->webservicefields as $field => $description) {
+            if (!in_array($field, $this->datamapping)) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     /**
