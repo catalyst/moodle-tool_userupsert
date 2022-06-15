@@ -131,18 +131,35 @@ class user_manager {
     public function upsert_user(array $data) {
         global $CFG;
 
-        // Check all mandatory fields are in data.
+        // Check that we have required matching field.
+        if (empty($data[$this->matchingfield])) {
+            throw new upset_failed_exception('error:missingfield', $this->matchingfield);
+        }
+
+        // Try to find a user.
+        $user = user_extractor::get_user($this->config->get_user_match_field(), $data[$this->matchingfield]);
+
+        // Checking that all mandatory fields are coming in.
         foreach ($this->config->get_mandatory_fields() as $field) {
             $fieldname = $this->config->get_data_mapping()[$field];
-            if (empty($data[$fieldname])) {
-                throw new upset_failed_exception('error:missingfield', $this->config->get_data_mapping()[$field]);
+            if ($user) {
+                // If updating a user we need to check existence of required fields ONLY if they are set to be updated.
+                if (isset($data[$fieldname]) && empty($data[$fieldname])) {
+                    throw new upset_failed_exception('error:missingfield', $this->config->get_data_mapping()[$field]);
+                }
+            } else {
+                // If creating a user we need to check existence of ALL required fields to be set.
+                if (empty($data[$fieldname])) {
+                    throw new upset_failed_exception('error:missingfield', $this->config->get_data_mapping()[$field]);
+                }
             }
         }
 
-        $status = $data[$this->statusfield];
-        $this->validate_status($status);
-
-        $user = user_extractor::get_user($this->config->get_user_match_field(), $data[$this->matchingfield]);
+        $status = '';
+        if (isset($data[$this->statusfield])) {
+            $status = $data[$this->statusfield];
+            $this->validate_status($status);
+        }
 
         if ($status == 'deleted') {
             if (!empty($user)) {
@@ -159,16 +176,20 @@ class user_manager {
                 }
             }
 
-            $email = $data[$this->emailfield];
-            $this->validate_email($email);
+            if (isset($data[$this->emailfield])) {
+                $email = $data[$this->emailfield];
+                $this->validate_email($email);
 
-            if (empty($CFG->allowaccountssameemail) && user_extractor::is_email_taken($email, $userid)) {
-                throw new upset_failed_exception('error:emailtaken', $email);
+                if (empty($CFG->allowaccountssameemail) && user_extractor::is_email_taken($email, $userid)) {
+                    throw new upset_failed_exception('error:emailtaken', $email);
+                }
             }
 
-            $username = $data[$this->usernamefield];
-            if (user_extractor::is_username_taken($username, $userid)) {
-                throw new upset_failed_exception('error:usernametaken', $username);
+            if (isset($data[$this->usernamefield])) {
+                $username = $data[$this->usernamefield];
+                if (user_extractor::is_username_taken($username, $userid)) {
+                    throw new upset_failed_exception('error:usernametaken', $username);
+                }
             }
 
             $auth = $this->config->get_default_auth();
@@ -197,7 +218,10 @@ class user_manager {
                 throw new upset_failed_exception('error:creating', null, $exception->getMessage());
             }
 
-            $user->suspended = 0;
+            if ($status == 'active') {
+                $user->suspended = 0;
+            }
+
             if ($status == 'suspended') {
                 $user->suspended = 1;
             }

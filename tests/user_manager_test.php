@@ -26,7 +26,6 @@ namespace tool_userupsert\tests;
 
 use advanced_testcase;
 use tool_userupsert\config;
-use tool_userupsert\missing_field_exception;
 use tool_userupsert\upsert_not_configured_exception;
 use tool_userupsert\upset_failed_exception;
 use tool_userupsert\user_manager;
@@ -799,6 +798,52 @@ class user_manager_test extends advanced_testcase {
         $usermanager->upsert_user($data);
         $user = get_complete_user_data('username', 'newuser');
         $this->assertEquals('nologin', $user->auth);
+    }
+
+    /**
+     * Test partly update user.
+     */
+    public function test_can_partly_update_when_existing_user() {
+        $this->resetAfterTest();
+
+        $this->set_test_config_data();
+
+        $usermanager = $this->get_user_manager();
+        $this->config = new config();
+
+        $existinguser = $this->getDataGenerator()->create_user();
+        $user = get_complete_user_data('username', $existinguser->username);
+        $this->assertEquals(0, $user->suspended);
+
+        // Update only email.
+        $data = [];
+        $data[$this->config->get_data_mapping()['username']] = $existinguser->username;
+        $data[$this->config->get_data_mapping()['email']] = 'newemail@test.ru';
+
+        $usermanager->upsert_user($data);
+        $user = get_complete_user_data('username', $existinguser->username);
+        $this->assertEquals(0, $user->suspended);
+        $this->assertEquals('newemail@test.ru', $user->email);
+
+        // Update email and suspend.
+        $data = [];
+        $data[$this->config->get_data_mapping()['username']] = $existinguser->username;
+        $data[$this->config->get_data_mapping()['email']] = 'newemail2@test.ru';
+        $data[$this->config->get_data_mapping()['status']] = 'suspended';
+
+        $usermanager->upsert_user($data);
+        $user = get_complete_user_data('username', $existinguser->username);
+        $this->assertEquals('newemail2@test.ru', $user->email);
+        $this->assertEquals(1, $user->suspended);
+
+        // Deleted status.
+        $data = [];
+        $data[$this->config->get_data_mapping()['username']] = $existinguser->username;
+        $data[$this->config->get_data_mapping()['status']] = 'deleted';
+
+        $usermanager->upsert_user($data);
+        $user = get_complete_user_data('username', $existinguser->username);
+        $this->assertFalse($user);
     }
 
 }
