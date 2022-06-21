@@ -272,6 +272,8 @@ class upsert_test extends advanced_testcase {
 
         $usertodelete = $this->getDataGenerator()->create_user(['auth' => 'manual']);
         $user = $this->getDataGenerator()->create_user(['auth' => 'manual']);
+        $userpartlyupdate = $this->getDataGenerator()->create_user(['auth' => 'manual']);
+
         $this->getDataGenerator()->role_assign($roleid, $user->id, context_system::instance()->id);
 
         $this->setUser($user);
@@ -281,15 +283,15 @@ class upsert_test extends advanced_testcase {
 
         $feed = ['users' => []];
 
-        $data = $this->get_web_service_data();
-
         // User 1.
+        $data = $this->get_web_service_data();
         $data[$this->config->get_data_mapping()['username']] = 'user1';
         $data[$this->config->get_data_mapping()['email']] = 'user1@email.ru';
         $feed['users'][] = $data;
         $this->assertFalse(get_complete_user_data('username', 'user1'));
 
         // User 2.
+        $data = $this->get_web_service_data();
         $data[$this->config->get_data_mapping()['username']] = 'user2';
         $data[$this->config->get_data_mapping()['email']] = 'user2@email.ru';
         $data[$this->config->get_data_mapping()['auth']] = 'nologin';
@@ -297,13 +299,15 @@ class upsert_test extends advanced_testcase {
         $this->assertFalse(get_complete_user_data('username', 'user2'));
 
         // User 3.
+        $data = $this->get_web_service_data();
         $data[$this->config->get_data_mapping()['username']] = 'user3';
         $data[$this->config->get_data_mapping()['email']] = $user->email;
         $data[$this->config->get_data_mapping()['auth']] = 'manual';
         $feed['users'][] = $data;
         $this->assertFalse(get_complete_user_data('username', 'user3'));
 
-        // Existing user 1.
+        // Existing user 1 (this user will be suspended).
+        $data = $this->get_web_service_data();
         $data[$this->config->get_data_mapping()['username']] = $user->username;
         $data[$this->config->get_data_mapping()['email']] = 'user4@email.ru';
         $data[$this->config->get_data_mapping()['auth']] = 'email';
@@ -314,11 +318,20 @@ class upsert_test extends advanced_testcase {
         $this->assertSame('manual', $existing->auth);
         $this->assertSame($user->email, $existing->email);
 
-        // Existing user 2.
+        // Existing user 2 (this user will be deleted).
         $data[$this->config->get_data_mapping()['username']] = $usertodelete->username;
         $data[$this->config->get_data_mapping()['email']] = 'user5@email.ru';
         $data[$this->config->get_data_mapping()['status']] = 'deleted';
         $feed['users'][] = $data;
+
+        // Existing user 3 (this user will be partly updated - only email will be changed).
+        $data = [];
+        $data[$this->config->get_data_mapping()['username']] = $userpartlyupdate->username;
+        $data[$this->config->get_data_mapping()['email']] = 'user6@email.ru';
+        $feed['users'][] = $data;
+
+        $existing = get_complete_user_data('username', $userpartlyupdate->username);
+        $this->assertSame($userpartlyupdate->email, $existing->email);
 
         $sink = $this->redirectEvents();
 
@@ -337,7 +350,7 @@ class upsert_test extends advanced_testcase {
             return $event instanceof upsert_failed;
         });
 
-        $this->assertCount(4, $succeededevents);
+        $this->assertCount(5, $succeededevents);
         $this->assertCount(1, $failedevents);
 
         $succeeded = [];
@@ -363,6 +376,7 @@ class upsert_test extends advanced_testcase {
         $user3 = get_complete_user_data('username', 'user3');
         $userexisting = get_complete_user_data('username', $user->username);
         $userdeleted = get_complete_user_data('username', $usertodelete->username);
+        $userpartlyupdated = get_complete_user_data('username', $userpartlyupdate->username);
 
         $this->assertTrue(in_array($user1->username, $succeeded));
         $this->assertSame('Test', $user1->firstname);
@@ -387,6 +401,13 @@ class upsert_test extends advanced_testcase {
         $this->assertSame('user4@email.ru', $userexisting->email);
         $this->assertSame('email', $userexisting->auth);
         $this->assertEquals(1, $userexisting->suspended);
+
+        $this->assertTrue(in_array($userpartlyupdated->username, $succeeded));
+        $this->assertSame($userpartlyupdate->firstname, $userpartlyupdated->firstname);
+        $this->assertSame($userpartlyupdate->lastname, $userpartlyupdated->lastname);
+        $this->assertSame('user6@email.ru', $userpartlyupdated->email);
+        $this->assertSame($userpartlyupdate->auth, $userpartlyupdated->auth);
+        $this->assertEquals(0, $userpartlyupdated->suspended);
 
         $this->assertTrue(in_array($usertodelete->username, $succeeded));
         $this->assertFalse($userdeleted);

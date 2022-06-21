@@ -48,6 +48,7 @@ $string['mappingfielderror'] = 'Web service field mapping is required for this f
 $string['notconfigured'] = 'The plugin is not configured properly. Please check the errors below.';
 $string['pluginname'] = 'User upsert';
 $string['privacy:metadata'] = 'The User upsert plugin does not store any personal data.';
+$string['requiredtocreateuser'] = 'Required to create a new user.';
 $string['status'] = 'Status - active, deleted or suspended';
 $string['usermatchfield'] = 'User match field';
 $string['usermatchfield_desc'] = 'This field will be used for finding a user in Moodle. Make sure that you have mapped this it with Web service fields in Data mapping.';

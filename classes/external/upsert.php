@@ -53,9 +53,26 @@ class upsert extends external_api {
     public static function upsert_users_parameters(): external_function_parameters {
         $config = new config();
         $userfields = [];
+        $extradescription = ' (' . get_string('requiredtocreateuser', 'tool_userupsert') . ')';
 
         foreach ($config->get_web_service_fields() as $field => $description) {
-            if (in_array($field, $config->get_mandatory_fields())) {
+            $required = false;
+            $mappedfields = array_keys($config->get_data_mapping(), $field);
+
+            foreach ($mappedfields as $fieldname) {
+
+                // Check if one of the  mapped fields is mandatory field.
+                if (in_array($fieldname, $config->get_mandatory_fields())) {
+                    $description .= $extradescription;
+                }
+
+                // Check if mapped field is being used for matching users.
+                if ($fieldname == $config->get_user_match_field()) {
+                    $required = true;
+                }
+            }
+
+            if ($required) {
                 $userfields[$field] = new external_value(PARAM_RAW, $description, VALUE_REQUIRED);
             } else {
                 $userfields[$field] = new external_value(PARAM_RAW, $description, VALUE_OPTIONAL);
