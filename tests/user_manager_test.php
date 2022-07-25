@@ -27,7 +27,7 @@ namespace tool_userupsert\tests;
 use advanced_testcase;
 use tool_userupsert\config;
 use tool_userupsert\upsert_not_configured_exception;
-use tool_userupsert\upset_failed_exception;
+use tool_userupsert\upsert_failed_exception;
 use tool_userupsert\user_manager;
 
 defined('MOODLE_INTERNAL') || die();
@@ -105,7 +105,7 @@ class user_manager_test extends advanced_testcase {
 
         $usermanager = $this->get_user_manager();
 
-        $this->expectException(upset_failed_exception::class);
+        $this->expectException(upsert_failed_exception::class);
         $this->expectExceptionMessage('Missing mandatory field ' . $fieldname);
 
         $usermanager->upsert_user($data);
@@ -131,7 +131,7 @@ class user_manager_test extends advanced_testcase {
 
         $usermanager = $this->get_user_manager();
 
-        $this->expectException(upset_failed_exception::class);
+        $this->expectException(upsert_failed_exception::class);
         $this->expectExceptionMessage('Missing mandatory field CustomField');
 
         $usermanager->upsert_user($data);
@@ -152,7 +152,7 @@ class user_manager_test extends advanced_testcase {
         $data[$this->config->get_data_mapping()['username']] = $user->username;
         $data[$this->config->get_data_mapping()['status']] = 'random';
 
-        $this->expectException(upset_failed_exception::class);
+        $this->expectException(upsert_failed_exception::class);
         $this->expectExceptionMessage('Invalid status: random');
         $usermanager->upsert_user($data);
     }
@@ -223,7 +223,7 @@ class user_manager_test extends advanced_testcase {
 
         $data[$this->config->get_data_mapping()['email']] = 'broken@email';
 
-        $this->expectException(upset_failed_exception::class);
+        $this->expectException(upsert_failed_exception::class);
         $this->expectExceptionMessage('Invalid email: broken@email');
 
         $usermanager->upsert_user($data);
@@ -245,7 +245,7 @@ class user_manager_test extends advanced_testcase {
         $data[$this->config->get_data_mapping()['username']] = $user->username;
         $data[$this->config->get_data_mapping()['email']] = 'broken@email';
 
-        $this->expectException(upset_failed_exception::class);
+        $this->expectException(upsert_failed_exception::class);
         $this->expectExceptionMessage('Invalid email: broken@email');
 
         $usermanager->upsert_user($data);
@@ -266,7 +266,7 @@ class user_manager_test extends advanced_testcase {
 
         $data[$this->config->get_data_mapping()['email']] = 'notallowed@moodle.com';
 
-        $this->expectException(upset_failed_exception::class);
+        $this->expectException(upsert_failed_exception::class);
         $this->expectExceptionMessage(
             'Email is not allowed: notallowed@moodle.com. Error: This email is not one of those that are allowed (example.com test.com)'
         );
@@ -291,7 +291,7 @@ class user_manager_test extends advanced_testcase {
         $data[$this->config->get_data_mapping()['username']] = $user->username;
         $data[$this->config->get_data_mapping()['email']] = 'notallowed@moodle.com';
 
-        $this->expectException(upset_failed_exception::class);
+        $this->expectException(upsert_failed_exception::class);
         $this->expectExceptionMessage(
             'Email is not allowed: notallowed@moodle.com. Error: This email is not one of those that are allowed (example.com test.com)'
         );
@@ -315,7 +315,7 @@ class user_manager_test extends advanced_testcase {
 
         $data[$this->config->get_data_mapping()['email']] = $user->email;
 
-        $this->expectException(upset_failed_exception::class);
+        $this->expectException(upsert_failed_exception::class);
         $this->expectExceptionMessage('Email is already taken: ' . $user->email);
 
         $usermanager->upsert_user($data);
@@ -339,7 +339,7 @@ class user_manager_test extends advanced_testcase {
         $data[$this->config->get_data_mapping()['username']] = $existinguser->username;
         $data[$this->config->get_data_mapping()['email']] = $user->email;
 
-        $this->expectException(upset_failed_exception::class);
+        $this->expectException(upsert_failed_exception::class);
         $this->expectExceptionMessage('Email is already taken: ' . $user->email);
 
         $usermanager->upsert_user($data);
@@ -413,7 +413,7 @@ class user_manager_test extends advanced_testcase {
 
         $data[$this->config->get_data_mapping()['username']] = 'admin';
 
-        $this->expectException(upset_failed_exception::class);
+        $this->expectException(upsert_failed_exception::class);
         $this->expectExceptionMessage('Username is already taken: admin');
 
         $usermanager->upsert_user($data);
@@ -437,7 +437,7 @@ class user_manager_test extends advanced_testcase {
         $data[$this->config->get_data_mapping()['email']] = $existinguser->email;
         $data[$this->config->get_data_mapping()['username']] = 'admin';
 
-        $this->expectException(upset_failed_exception::class);
+        $this->expectException(upsert_failed_exception::class);
         $this->expectExceptionMessage('Username is already taken: admin');
 
         $usermanager->upsert_user($data);
@@ -457,7 +457,7 @@ class user_manager_test extends advanced_testcase {
 
         $data[$this->config->get_data_mapping()['auth']] = 'random';
 
-        $this->expectException(upset_failed_exception::class);
+        $this->expectException(upsert_failed_exception::class);
         $this->expectExceptionMessage('Invalid auth method: random');
 
         $usermanager->upsert_user($data);
@@ -480,7 +480,7 @@ class user_manager_test extends advanced_testcase {
         $data[$this->config->get_data_mapping()['username']] = $existinguser->username;
         $data[$this->config->get_data_mapping()['auth']] = 'random';
 
-        $this->expectException(upset_failed_exception::class);
+        $this->expectException(upsert_failed_exception::class);
         $this->expectExceptionMessage('Invalid auth method: random');
 
         $usermanager->upsert_user($data);
@@ -502,7 +502,7 @@ class user_manager_test extends advanced_testcase {
         $data[$this->config->get_data_mapping()['username']] = 'Test';
         unset($data[$this->config->get_data_mapping()['password']]);
 
-        $this->expectException(upset_failed_exception::class);
+        $this->expectException(upsert_failed_exception::class);
         $this->expectExceptionMessage('Error updating profile fields. Error: The username must be in lower case (The username must be in lower case)');
         $usermanager->upsert_user($data);
     }
@@ -525,7 +525,7 @@ class user_manager_test extends advanced_testcase {
         $data[$this->config->get_data_mapping()['email']] = $existinguser->email;
         unset($data[$this->config->get_data_mapping()['password']]);
 
-        $this->expectException(upset_failed_exception::class);
+        $this->expectException(upsert_failed_exception::class);
         $this->expectExceptionMessage('Error updating profile fields. Error: The username must be in lower case (The username must be in lower case)');
         $usermanager->upsert_user($data);
     }
@@ -545,7 +545,7 @@ class user_manager_test extends advanced_testcase {
 
         $data[$this->config->get_data_mapping()['password']] = 'weak';
 
-        $this->expectException(upset_failed_exception::class);
+        $this->expectException(upsert_failed_exception::class);
         $this->expectExceptionMessage('Error updating profile fields. Error: error/<div>Passwords must be at least 8 characters long.');
         $usermanager->upsert_user($data);
     }
@@ -568,7 +568,7 @@ class user_manager_test extends advanced_testcase {
         $data[$this->config->get_data_mapping()['email']] = $existinguser->email;
         $data[$this->config->get_data_mapping()['password']] = 'weak';
 
-        $this->expectException(upset_failed_exception::class);
+        $this->expectException(upsert_failed_exception::class);
         $this->expectExceptionMessage('Error updating profile fields. Error: error/<div>Passwords must be at least 8 characters long.');
         $usermanager->upsert_user($data);
     }
@@ -593,7 +593,7 @@ class user_manager_test extends advanced_testcase {
         $data[$this->config->get_data_mapping()['profile_field_newfield']] = 'User Field';
         unset($data[$this->config->get_data_mapping()['password']]);
 
-        $this->expectException(upset_failed_exception::class);
+        $this->expectException(upsert_failed_exception::class);
         $this->expectExceptionMessage('Error updating profile fields. Error: Error setting custom field data. Error: profile_field_newfield: This value has already been used.');
 
         $usermanager->upsert_user($data);
@@ -628,7 +628,7 @@ class user_manager_test extends advanced_testcase {
 
         $data[$this->config->get_data_mapping()['profile_field_newfield']] = 'User 1 Field 1';
 
-        $this->expectException(upset_failed_exception::class);
+        $this->expectException(upsert_failed_exception::class);
         $this->expectExceptionMessage('Error updating profile fields. Error: Error setting custom field data. Error: profile_field_newfield: This value has already been used.');
         $usermanager->upsert_user($data);
     }

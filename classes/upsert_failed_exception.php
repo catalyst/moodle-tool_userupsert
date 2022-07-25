@@ -32,7 +32,7 @@ defined('MOODLE_INTERNAL') || die();
  * @copyright   2021 Catalyst IT
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class upset_failed_exception extends \moodle_exception {
+class upsert_failed_exception extends \moodle_exception {
 
     /**
      * Constructor
