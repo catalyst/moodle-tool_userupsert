@@ -846,4 +846,39 @@ class user_manager_test extends advanced_testcase {
         $this->assertFalse($user);
     }
 
+    /**
+     * Test user record is not created if something goes wrong.
+     */
+    public function test_user_not_created_if_something_goes_wrong() {
+        global $DB;
+
+        $this->resetAfterTest();
+        $this->preventResetByRollback();
+
+        $this->set_test_config_data();
+        $customfield = $this->add_user_profile_field('newfield', 'text', true);
+        set_config('data_map_profile_field_newfield', 'CustomField', 'tool_userupsert');
+
+        $user = $this->getDataGenerator()->create_user();
+        profile_save_data((object)['id' => $user->id, 'profile_field_' . $customfield->shortname => 'User 1 Field 1']);
+
+        $usermanager = $this->get_user_manager();
+        $this->config = new config();
+
+        $data = $this->get_web_service_data();
+
+        $data[$this->config->get_data_mapping()['username']] = 'newuser';
+        $data[$this->config->get_data_mapping()['email']] = 'newuser@mail.com';
+        $data[$this->config->get_data_mapping()['profile_field_newfield']] = 'User 1 Field 1';
+        unset($data[$this->config->get_data_mapping()['password']]);
+
+        $this->assertFalse($DB->record_exists('user', ['username' => 'newuser']));
+
+        try {
+            $usermanager->upsert_user($data);
+        } catch (\Exception $exception) {
+            $this->assertFalse($DB->record_exists('user', ['username' => 'newuser']));
+        }
+    }
+
 }
