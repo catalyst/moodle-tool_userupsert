@@ -129,7 +129,7 @@ class user_manager {
      * @param array $data User data where the key is field and value is value.
      */
     public function upsert_user(array $data) {
-        global $CFG;
+        global $CFG, $DB;
 
         // Check that we have required matching field.
         if (empty($data[$this->matchingfield])) {
@@ -207,6 +207,8 @@ class user_manager {
                 throw new upset_failed_exception('error:invalidauth',  (object)['auth' => $auth]);
             }
 
+            $transaction = $DB->start_delegated_transaction();
+
             try {
                 if (!$user) {
                     // Initially create a user with an empty password.
@@ -221,11 +223,12 @@ class user_manager {
                     }
                 }
             } catch (\Exception $exception) {
-                throw new upset_failed_exception(
+                $exception = new upset_failed_exception(
                     'error:creating',
                     (object)['error' => $exception->getMessage()],
                     $exception->getMessage()
                 );
+                $transaction->rollback($exception);
             }
 
             if ($status == 'active') {
@@ -239,12 +242,15 @@ class user_manager {
             try {
                 $this->update_user_profile($user, $data, $updatepasword);
             } catch (\Exception $exception) {
-                throw new upset_failed_exception(
+                $exception = new upset_failed_exception(
                     'error:updatingfields',
                     (object)['error' => $exception->getMessage()],
                     $exception->getMessage()
                 );
+                $transaction->rollback($exception);
             }
+
+            $transaction->allow_commit();
         }
     }
 
