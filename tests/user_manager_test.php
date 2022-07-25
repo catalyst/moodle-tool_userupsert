@@ -268,7 +268,7 @@ class user_manager_test extends advanced_testcase {
 
         $this->expectException(upset_failed_exception::class);
         $this->expectExceptionMessage(
-            'Email is not allowed: notallowed@moodle.com (This email is not one of those that are allowed (example.com test.com))'
+            'Email is not allowed: notallowed@moodle.com. Error: This email is not one of those that are allowed (example.com test.com)'
         );
 
         $usermanager->upsert_user($data);
@@ -293,7 +293,7 @@ class user_manager_test extends advanced_testcase {
 
         $this->expectException(upset_failed_exception::class);
         $this->expectExceptionMessage(
-            'Email is not allowed: notallowed@moodle.com (This email is not one of those that are allowed (example.com test.com))'
+            'Email is not allowed: notallowed@moodle.com. Error: This email is not one of those that are allowed (example.com test.com)'
         );
 
         $usermanager->upsert_user($data);
@@ -503,7 +503,7 @@ class user_manager_test extends advanced_testcase {
         unset($data[$this->config->get_data_mapping()['password']]);
 
         $this->expectException(upset_failed_exception::class);
-        $this->expectExceptionMessage('Error updating profile fields (The username must be in lower case)');
+        $this->expectExceptionMessage('Error updating profile fields. Error: The username must be in lower case (The username must be in lower case)');
         $usermanager->upsert_user($data);
     }
 
@@ -526,7 +526,7 @@ class user_manager_test extends advanced_testcase {
         unset($data[$this->config->get_data_mapping()['password']]);
 
         $this->expectException(upset_failed_exception::class);
-        $this->expectExceptionMessage('Error updating profile fields (The username must be in lower case)');
+        $this->expectExceptionMessage('Error updating profile fields. Error: The username must be in lower case (The username must be in lower case)');
         $usermanager->upsert_user($data);
     }
 
@@ -546,7 +546,7 @@ class user_manager_test extends advanced_testcase {
         $data[$this->config->get_data_mapping()['password']] = 'weak';
 
         $this->expectException(upset_failed_exception::class);
-        $this->expectExceptionMessage('Error updating profile fields (error/<div>Passwords must be at least 8 character');
+        $this->expectExceptionMessage('Error updating profile fields. Error: error/<div>Passwords must be at least 8 characters long.');
         $usermanager->upsert_user($data);
     }
 
@@ -569,7 +569,7 @@ class user_manager_test extends advanced_testcase {
         $data[$this->config->get_data_mapping()['password']] = 'weak';
 
         $this->expectException(upset_failed_exception::class);
-        $this->expectExceptionMessage('Error updating profile fields (error/<div>Passwords must be at least 8 character');
+        $this->expectExceptionMessage('Error updating profile fields. Error: error/<div>Passwords must be at least 8 characters long.');
         $usermanager->upsert_user($data);
     }
 
@@ -594,7 +594,7 @@ class user_manager_test extends advanced_testcase {
         unset($data[$this->config->get_data_mapping()['password']]);
 
         $this->expectException(upset_failed_exception::class);
-        $this->expectExceptionMessage('Error updating profile fields (Error setting custom field data (profile_field_newfield: This value has already been used.))');
+        $this->expectExceptionMessage('Error updating profile fields. Error: Error setting custom field data. Error: profile_field_newfield: This value has already been used.');
 
         $usermanager->upsert_user($data);
     }
@@ -629,7 +629,7 @@ class user_manager_test extends advanced_testcase {
         $data[$this->config->get_data_mapping()['profile_field_newfield']] = 'User 1 Field 1';
 
         $this->expectException(upset_failed_exception::class);
-        $this->expectExceptionMessage('Error updating profile fields (Error setting custom field data (profile_field_newfield: This value has already been used.))');
+        $this->expectExceptionMessage('Error updating profile fields. Error: Error setting custom field data. Error: profile_field_newfield: This value has already been used.');
         $usermanager->upsert_user($data);
     }
 
