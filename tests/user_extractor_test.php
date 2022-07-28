@@ -120,16 +120,16 @@ class user_extractor_test extends advanced_testcase {
         $field2 = $this->add_user_profile_field('field2', 'text', true);
 
         $user1 = $this->getDataGenerator()->create_user();
-        profile_save_data((object)['id' => $user1->id, 'profile_field_' . $field1->shortname => 'User 1 Field 1']);
-        profile_save_data((object)['id' => $user1->id, 'profile_field_' . $field2->shortname => 'User 1 Field 2']);
+        profile_save_data((object)['id' => $user1->id, 'profile_field_' . $field1->shortname => 'User 1 Field 1', 'username' => $user1->username]);
+        profile_save_data((object)['id' => $user1->id, 'profile_field_' . $field2->shortname => 'User 1 Field 2', 'username' => $user1->username]);
 
         $user2 = $this->getDataGenerator()->create_user();
-        profile_save_data((object)['id' => $user2->id, 'profile_field_' . $field1->shortname => 'User 2 Field 1']);
-        profile_save_data((object)['id' => $user2->id, 'profile_field_' . $field2->shortname => 'User 2 Field 2']);
+        profile_save_data((object)['id' => $user2->id, 'profile_field_' . $field1->shortname => 'User 2 Field 1', 'username' => $user2->username]);
+        profile_save_data((object)['id' => $user2->id, 'profile_field_' . $field2->shortname => 'User 2 Field 2', 'username' => $user2->username]);
 
         $user3 = $this->getDataGenerator()->create_user();
-        profile_save_data((object)['id' => $user3->id, 'profile_field_' . $field1->shortname => 'User 3 Field 1']);
-        profile_save_data((object)['id' => $user3->id, 'profile_field_' . $field2->shortname => 'User 3 Field 2']);
+        profile_save_data((object)['id' => $user3->id, 'profile_field_' . $field1->shortname => 'User 3 Field 1', 'username' => $user3->username]);
+        profile_save_data((object)['id' => $user3->id, 'profile_field_' . $field2->shortname => 'User 3 Field 2', 'username' => $user3->username]);
         delete_user($user3);
 
         // Should find users.
@@ -174,12 +174,12 @@ class user_extractor_test extends advanced_testcase {
         $field2 = $this->add_user_profile_field('field2', 'text');
 
         $user1 = $this->getDataGenerator()->create_user();
-        profile_save_data((object)['id' => $user1->id, 'profile_field_' . $field1->shortname => 'User 1 Field 1']);
-        profile_save_data((object)['id' => $user1->id, 'profile_field_' . $field2->shortname => 'User 1 Field 2']);
+        profile_save_data((object)['id' => $user1->id, 'profile_field_' . $field1->shortname => 'User 1 Field 1', 'username' => $user1->username]);
+        profile_save_data((object)['id' => $user1->id, 'profile_field_' . $field2->shortname => 'User 1 Field 2', 'username' => $user1->username]);
 
         $user2 = $this->getDataGenerator()->create_user();
-        profile_save_data((object)['id' => $user2->id, 'profile_field_' . $field1->shortname => 'User 1 Field 1']);
-        profile_save_data((object)['id' => $user2->id, 'profile_field_' . $field2->shortname => 'User 1 Field 2']);
+        profile_save_data((object)['id' => $user2->id, 'profile_field_' . $field1->shortname => 'User 1 Field 1', 'username' => $user2->username]);
+        profile_save_data((object)['id' => $user2->id, 'profile_field_' . $field2->shortname => 'User 1 Field 2', 'username' => $user2->username]);
 
         $this->expectException(more_than_one_user_found_exception::class);
         user_extractor::get_user('profile_field_field1', 'User 1 Field 1');

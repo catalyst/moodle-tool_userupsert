@@ -583,7 +583,11 @@ class user_manager_test extends advanced_testcase {
         set_config('data_map_profile_field_newfield', 'CustomField', 'tool_userupsert');
 
         $user = $this->getDataGenerator()->create_user();
-        profile_save_data((object)['id' => $user->id, 'profile_field_' . $customfield->shortname => 'User Field']);
+        profile_save_data((object)[
+            'id' => $user->id,
+            'username' => $user->username,
+            'profile_field_' . $customfield->shortname => 'User Field',
+        ]);
 
         $usermanager = $this->get_user_manager();
         $this->config = new config();
@@ -609,10 +613,18 @@ class user_manager_test extends advanced_testcase {
         set_config('data_map_profile_field_newfield', 'CustomField', 'tool_userupsert');
 
         $user = $this->getDataGenerator()->create_user();
-        profile_save_data((object)['id' => $user->id, 'profile_field_' . $customfield->shortname => 'User 1 Field 1']);
+        profile_save_data((object)[
+            'id' => $user->id,
+            'username' => $user->username,
+            'profile_field_' . $customfield->shortname => 'User 1 Field 1',
+        ]);
 
         $existinguser = $this->getDataGenerator()->create_user();
-        profile_save_data((object)['id' => $existinguser->id, 'profile_field_' . $customfield->shortname => 'User existing Field']);
+        profile_save_data((object)[
+            'id' => $existinguser->id,
+            'username' => $user->username,
+            'profile_field_' . $customfield->shortname => 'User existing Field',
+        ]);
 
         $usermanager = $this->get_user_manager();
         $this->config = new config();
@@ -860,7 +872,11 @@ class user_manager_test extends advanced_testcase {
         set_config('data_map_profile_field_newfield', 'CustomField', 'tool_userupsert');
 
         $user = $this->getDataGenerator()->create_user();
-        profile_save_data((object)['id' => $user->id, 'profile_field_' . $customfield->shortname => 'User 1 Field 1']);
+        profile_save_data((object)[
+            'id' => $user->id,
+            'username' => $user->username,
+            'profile_field_' . $customfield->shortname => 'User 1 Field 1',
+        ]);
 
         $usermanager = $this->get_user_manager();
         $this->config = new config();
