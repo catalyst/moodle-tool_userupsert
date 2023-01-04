@@ -1,4 +1,4 @@
-![GitHub Workflow Status (branch)](https://img.shields.io/github/workflow/status/catalyst/moodle-tool_userupsert/ci/MOODLE_39_STABLE)
+![GitHub Workflow Status (branch)](https://img.shields.io/github/actions/workflow/status/catalyst/moodle-tool_userupsert/ci.yml?branch=MOODLE_39_STABLE)
 
 # Upsert users #
 
