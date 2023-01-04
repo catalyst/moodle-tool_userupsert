@@ -25,8 +25,8 @@
 defined('MOODLE_INTERNAL') || die();
 
 $plugin->component = 'tool_userupsert';
-$plugin->version = 2022072500;
-$plugin->release = '2022072500';
+$plugin->version = 2022010500;
+$plugin->release = '2022010500';
 $plugin->requires = 2020061500;
 $plugin->supported = [39, 401];  // Available as of Moodle 3.9.0 or later.
 $plugin->maturity = MATURITY_STABLE;
