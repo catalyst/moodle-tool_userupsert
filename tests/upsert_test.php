@@ -25,7 +25,7 @@
 namespace tool_userupsert\tests;
 
 use advanced_testcase;
-use external_api;
+use core_external\external_api;
 use tool_userupsert\config;
 use context_system;
 use tool_userupsert\event\upsert_failed;
@@ -34,9 +34,6 @@ use tool_userupsert\event\upsert_succeeded;
 defined('MOODLE_INTERNAL') || die();
 
 require_once(__DIR__ . '/test_helper_trait.php');
-
-global $CFG;
-require_once($CFG->dirroot . '/lib/externallib.php');
 
 /**
  * Tests for upsert class.
