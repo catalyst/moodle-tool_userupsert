@@ -28,5 +28,5 @@ $plugin->component = 'tool_userupsert';
 $plugin->version = 2023010500;
 $plugin->release = '2023010500';
 $plugin->requires = 2020061500;
-$plugin->supported = [39, 401];  // Available as of Moodle 3.9.0 or later.
+$plugin->supported = [39, 404];  // Available as of Moodle 3.9.0 or later.
 $plugin->maturity = MATURITY_STABLE;
