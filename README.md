@@ -1,4 +1,4 @@
-![GitHub Workflow Status (branch)](https://img.shields.io/github/actions/workflow/status/catalyst/moodle-tool_userupsert/ci.yml?branch=MOODLE_39_STABLE)
+[![ci](https://github.com/catalyst/moodle-tool_userupsert/actions/workflows/ci.yml/badge.svg?branch=MOODLE_39_STABLE)](https://github.com/catalyst/moodle-tool_userupsert/actions/workflows/ci.yml)
 
 # Upsert users #
 
@@ -25,6 +25,13 @@ plugin.
 
 Then, navigate to Site administration > Plugins > Web services > API Documentation and check WS documentation for 
 tool_userupsert_upsert_users service as it will depend on your configuration.
+
+## Supported Moodle Versions
+
+| Moodle version   | Branch            |
+|------------------|-------------------|
+| Moodle 4.2 - 4.4 | MOODLE_402_STABLE |
+| Moodle 3.9 - 4.1 | MOODLE_39_STABLE  |
 
 ## Installing via uploaded ZIP file ##
 
