@@ -1,6 +1,4 @@
-<a href="https://github.com/catalyst/moodle-tool_userupsert/actions/workflows/ci.yml?query=branch%3AMOODLE_402_STABLE">
-<img src="https://github.com/catalyst/moodle-tool_userupsert/workflows/ci/badge.svg?branch=MOODLE_402_STABLE">
-</a>
+[![ci](https://github.com/catalyst/moodle-tool_userupsert/actions/workflows/ci.yml/badge.svg?branch=MOODLE_402_STABLE)](https://github.com/catalyst/moodle-tool_userupsert/actions/workflows/ci.yml)
 
 # Upsert users #
 
