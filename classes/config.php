@@ -14,14 +14,6 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-/**
- * Config class.
- *
- * @package     tool_userupsert
- * @copyright   2021 Catalyst IT
- * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */
-
 namespace tool_userupsert;
 
 use admin_settingpage;
@@ -30,8 +22,6 @@ use admin_setting_configselect;
 use lang_string;
 use core_text;
 use moodle_url;
-
-defined('MOODLE_INTERNAL') || die();
 
 /**
  * Config class.

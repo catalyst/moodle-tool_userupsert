@@ -35,6 +35,8 @@ defined('MOODLE_INTERNAL') || die();
  * @package     tool_userupsert
  * @copyright   2021 Catalyst IT
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ *
+ * @covers \tool_userupsert\config
  */
 class config_test extends advanced_testcase {
 
