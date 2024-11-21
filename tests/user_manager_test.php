@@ -261,7 +261,7 @@ class user_manager_test extends advanced_testcase {
         $data[$this->config->get_data_mapping()['email']] = 'notallowed@moodle.com';
 
         $this->expectException(upsert_failed_exception::class);
-        $this->expectExceptionMessageMatches('Email is not allowed: notallowed@moodle.com.');
+        $this->expectExceptionMessage('Email is not allowed: notallowed@moodle.com');
 
         $usermanager->upsert_user($data);
     }
@@ -284,7 +284,7 @@ class user_manager_test extends advanced_testcase {
         $data[$this->config->get_data_mapping()['email']] = 'notallowed@moodle.com';
 
         $this->expectException(upsert_failed_exception::class);
-        $this->expectExceptionMessageMatches('Email is not allowed: notallowed@moodle.com');
+        $this->expectExceptionMessage('Email is not allowed: notallowed@moodle.com');
 
         $usermanager->upsert_user($data);
     }
