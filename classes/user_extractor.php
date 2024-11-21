@@ -14,20 +14,10 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-/**
- * The class responsible for retrieving a user based on identifier.
- *
- * @package     tool_userupsert
- * @copyright   2021 Catalyst IT
- * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */
-
 namespace tool_userupsert;
 
 use dml_missing_record_exception;
 use dml_multiple_records_exception;
-
-defined('MOODLE_INTERNAL') || die();
 
 /**
  * The class responsible for retrieving a user based on identifier.

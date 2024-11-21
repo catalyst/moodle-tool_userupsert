@@ -14,17 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-/**
- * Web Service functions.
- *
- * @package     tool_userupsert
- * @copyright   2021 Catalyst IT
- * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */
-
 namespace tool_userupsert\external;
-
-defined('MOODLE_INTERNAL') || die();
 
 use tool_userupsert\event\upsert_failed;
 use tool_userupsert\config;

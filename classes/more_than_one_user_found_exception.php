@@ -14,21 +14,12 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+namespace tool_userupsert;
+
 /**
  * More than one user exception.
  *
  * @package     tool_userupsert
- * @copyright   2021 Catalyst IT
- * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */
-
-namespace tool_userupsert;
-
-defined('MOODLE_INTERNAL') || die();
-
-/**
- * More than one user exception.
- *
  * @copyright   2021 Catalyst IT
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
